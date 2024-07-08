@@ -1,30 +1,26 @@
-from transformers import BertModel, BertTokenizer
+from transformers import EncoderDecoderModel, AutoTokenizer
+import torch
 from get_embeding import *
 
-# Fixer les graines pour la reproductibilité
-import torch
-import numpy as np
+# Charger le modèle et le tokenizer
+model_name = "patrickvonplaten/bert2bert_cnn_daily_mail"
+model = EncoderDecoderModel.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-#torch.manual_seed(42)
-#np.random.seed(40)
+# Le mot ou la phrase dont vous voulez obtenir l'embedding
+text = "example"
 
-# Charger un modèle pré-entraîné
-model = BertModel.from_pretrained('bert-base-uncased')
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+# Tokeniser le texte
+inputs = tokenizer(text, return_tensors="pt")
 
-# Mettre le modèle en mode évaluation
-#model.eval()
+# Obtenir les embeddings du texte avec l'encodeur
+with torch.no_grad():
+    encoder_outputs = model.encoder(**inputs)
 
-# Tokenisation du texte
-input_text = "Hello"
-inputs = tokenizer(input_text, return_tensors="pt")
+# Récupérer le dernier état caché de l'encodeur
+encoder_hidden_states = encoder_outputs[0]
 
-# Obtenir les embeddings
-with torch.no_grad():  # Désactiver le calcul des gradients pour éviter des modifications accidentelles
-    outputs = model(**inputs)
-    embedding = outputs[0]
+print(encoder_outputs)
 
-embedding = get_embedding_of_word(embedding)
 
-print(embedding)
-
+iterate_tokens(encoder_hidden_states, tokenizer, model)

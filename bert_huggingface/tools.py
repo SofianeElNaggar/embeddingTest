@@ -7,7 +7,7 @@ import numpy as np
 
 #Sélection un mot aléatoire dans un fichier
 def random_word():
-    fichier = './bert-test/english-common-words.txt'
+    fichier = './english-common-words.txt'
     with open(fichier, 'r') as f:
         lignes = f.readlines()
         ligne = random.choice(lignes)

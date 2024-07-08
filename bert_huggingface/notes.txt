@@ -1,5 +1,8 @@
 Bert from_pretrained :
     - bert-base-uncased : ~72%
+        - Avec torch_dtype=torch.float16, attn_implementation="sdpa" : ~75%
+        - truncation=True, padding=True : ~72%
+        - model.eval() : ~72% (probablement le modèle par défaut)
     - bert-base-cased : 100%
     - bert-large-uncased : ~98%
     - bert-large-uncased-whole-word-masking : ~87%
