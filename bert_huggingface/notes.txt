@@ -1,0 +1,46 @@
+Bert from_pretrained :
+    - bert-base-uncased : ~72%
+    - bert-base-cased : 100%
+    - bert-large-uncased : ~98%
+    - bert-large-uncased-whole-word-masking : ~87%
+    - bert-large-uncased-whole-word-masking-finetuned-squad : ~97%
+    - bert-base-multilingual-uncased : ~68% (très long)(testé uniquement en anglais)
+    - distilbert-base-uncased : ~76%
+    - roberta-base : 100%
+    - deberta-base : 100%
+
+Paramètre BertConfig() : 
+    - hiden_size (multiple de 12): 
+        plus grand -> nul
+        plus petit -> bien mais pourquoi ??? valeur optimal au alentour de 12*32
+        - Non testable sur bert-large : BertConfig est paramétré pour bert-base, pas de solution pour l'instant pour bert-large
+    - position_embedding_type : non compatible avec BertSdpaSelfAttention utilisé dans torch
+
+BertConfig -> probablement nul mais peut être utile
+
+Test de distance : 
+    n = 2000
+    hidden_size = 12*32
+    - random word : 
+        Moyenne: 1.0014798277114427
+        Médiane: 1.0012299817117036
+        Premier quartile (Q1): 0.9674614874170349
+        Troisième quartile (Q3): 1.0371143882599176
+    - 'Hello :
+        Moyenne: 1.0007133102729706
+        Médiane: 1.001409812445253
+        Premier quartile (Q1): 0.9673643592760108
+        Troisième quartile (Q3): 1.0349812603785673
+
+    hidden_size = 12*64
+    - random word :
+        Moyenne: 1.0003106674610307
+        Médiane: 1.0003716082031953
+        Premier quartile (Q1): 0.9772424083377091
+        Troisième quartile (Q3): 1.0249368293436683
+    - 'Hello' :
+        Moyenne: 1.0003069387206316
+        Médiane: 1.0003347508609295
+        Premier quartile (Q1): 0.9757540288061908
+        Troisième quartile (Q3): 1.0251342274156077
+
