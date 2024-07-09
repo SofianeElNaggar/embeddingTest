@@ -12,6 +12,10 @@ Bert from_pretrained :
     - roberta-base : 100%
     - deberta-base : 100%
 
+Encoder Decoder model : 
+    - Bert2Bert : je n'ai pas réussi quoi que ce soit avec de modèle
+    - Bart : 
+
 Paramètre BertConfig() : 
     - hiden_size (multiple de 12): 
         plus grand -> nul
