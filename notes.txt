@@ -14,7 +14,7 @@ Bert from_pretrained :
 
 Encoder Decoder model : 
     - Bert2Bert : je n'ai pas réussi quoi que ce soit avec de modèle
-    - Bart : 
+    - Bart : top
 
 Paramètre BertConfig() : 
     - hiden_size (multiple de 12): 
