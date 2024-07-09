@@ -5,14 +5,6 @@ from transformers import BertModel, BertConfig
 from get_embeding import *
 import numpy as np
 
-#Sélection un mot aléatoire dans un fichier
-def random_word():
-    fichier = './english-common-words.txt'
-    with open(fichier, 'r') as f:
-        lignes = f.readlines()
-        ligne = random.choice(lignes)
-    return ligne.strip()
-
 #Tranforme les tokens de sortie en un string
 def token_to_string(output_tokens):
     string = ""

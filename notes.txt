@@ -51,3 +51,30 @@ Test de distance :
         Premier quartile (Q1): 0.9757540288061908
         Troisième quartile (Q3): 1.0251342274156077
 
+
+Bart : 
+    - Paramètre :
+        - num_beam = 1
+        - early_stopping = False
+
+    - Valuer min vecteur embedding -2.1
+    - Valeur max vecteur embedding 1.4
+
+    - Norme :
+        - min : 4.3
+        - max : 5.07
+
+    - Autre mot (4 pts):
+        - 'Hello :
+            - Distance 1 : ['hello', 'hellohello']
+            - Distance 2 : ['', 'hellohellohellohellohello', 'hellohello', 'hello']
+            - Distance 4 : ['', 'SOURCE:', '.', 'hello.hello.', 'hellohellohello', 'hellohellohellowwwhellohello.hellohelloSOURCEhellohellomayhellohellohttphellohello', 'hello', "'", 'hellohello', 'm.m.gisak@tribpublishing.com', 'SOURCE: www.matthewmccall.com.', 't', 'ak.gofundefined', 'deal', 't.m.', 'SOURCE: http://www.huffingtonpost.com/', 'www.happen.com.uk/news/world/world-news/', 'hellohellohellohellohello', 'www.hometown', 'Copyright 2016', 'hello.', 'SOURCE: www.theguardian.com.hello', 'SOURCE: www.truro.com', 'The www.cbsnews.com/news/local/2018/11/19/cbs-news/', 'SOURCE', 'hello.hello', 'gfang@tribune.com, https://www.wj.com/']
+            -
+        - 'coffee' :
+            - Distance 1 : ['coffee']
+            - Distance 2 : ['coffee', 'coffee.coffee']
+            - Distance 3 : ['', 'coffee', 'coffee.coffee', 'www.coffee.com/news/news-and-politics/news_story/news.story?id=7', 'coffee.coffeecoffee', 'coco', 'coffeecoffee']
+    
+    - Test cecle :
+        - 4 pts : 2n -> 1024 = 2048 vecteur
+        - 8 pts : 3^n -> 1024 = 3,733918487e488
