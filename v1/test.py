@@ -16,7 +16,15 @@ with torch.no_grad():
     encoder_outputs = model.model.encoder(**inputs)
     embedding = encoder_outputs.last_hidden_state
 
+embedding = embedding[:,1:2, :].cpu().detach().numpy()[0][0]
+
 print(embedding)
+
+embedding[0] = 1
+
+encoder_outputs.last_hidden_state[:, 1:2, :] = torch.FloatTensor(embedding)
+
+
 
 # Initialiser l'entrée du décodeur avec le token de début de séquence
 decoder_start_token = model.config.decoder_start_token_id
