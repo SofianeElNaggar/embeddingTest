@@ -23,8 +23,6 @@ Paramètre BertConfig() :
         - Non testable sur bert-large : BertConfig est paramétré pour bert-base, pas de solution pour l'instant pour bert-large
     - position_embedding_type : non compatible avec BertSdpaSelfAttention utilisé dans torch
 
-BertConfig -> probablement nul mais peut être utile
-
 Test de distance : 
     n = 2000
     hidden_size = 12*32
@@ -53,6 +51,13 @@ Test de distance :
 
 
 Bart : 
+    - bart-large : 
+        - vocab_size : 50265
+        - embedding_size : 1024
+    - bart-base :
+        - vocab_size : 50265
+        - embedding_size : 768
+
     - Paramètre :
         - num_beam = 1
         - early_stopping = False
@@ -64,7 +69,7 @@ Bart :
         - min : 4.3
         - max : 5.07
 
-    - Autre mot (4 pts):
+    - Test variants (4 pts) - bart-large - AutoTokenizer:
         - 'Hello :
             - Distance 1 : ['hello', 'hellohello']
             - Distance 2 : ['', 'hellohellohellohellohello', 'hellohello', 'hello']
@@ -75,6 +80,18 @@ Bart :
             - Distance 2 : ['coffee', 'coffee.coffee']
             - Distance 3 : ['', 'coffee', 'coffee.coffee', 'www.coffee.com/news/news-and-politics/news_story/news.story?id=7', 'coffee.coffeecoffee', 'coco', 'coffeecoffee']
     
+    - Test variants (4 pts) - bart-base - AutoTokenizer:
+        - 'coffee' :
+            - Distance 1 : ['coffee']
+            - Distance 2 : ['cococoffee', 'coffeecoffee', 'coffee']
+            - Distance 3 : ['', 'coffeecoffeeffeecocoffeewww.coffee.co.coco.comcoffee', 'cococoffeecoco-coco', 'cococoffeecoco-coco:cocofococoococochococo', 'coffeecoffeeffeecocoffee', 'www.coffee', 'advertisement', 'cococowwwcocoscocomorecocohttpcocotococo', 'cococoffeecocowwwcoco:coco://coco :cocoococohttpcocofcocolitecocofriedcocowatercocopetcococoxcococovercocoochco', 'coffeecoffeedelcococoffeeffeecoco coffeecoffee coffeecocolecoffee', 'coffeecoffee', 'cococoffeecococcoco cococofcoco-cocowww.coco.coffee.co.comcoco:cocochococo://coco', 'cococoffeecoco.cocoffecoffee', 'coffee']
+
+    - Test variants (4 pts) - bart-base - BartTokenizer:
+        - 'coffee' :
+            - Distance 1 : ['coffee']
+            - Distance 2 : ['cococoffeecoco', 'coffeecoffee', 'coffee']
+            - Distance 3 : ['', 'coffee', 'coffeecoffee', 'cococoffeecoco-coco:coco.cocowww.coffee.co.comcoco cococo', 'cococoffeecoco-coco://coco.coco:cocowww.coffee.co.comcocohttpcoco :cocoococolitecocoffecocochocococox', 'cococowwwcocoscoco', 'cococoffee']
+
     - Test cecle :
         - 4 pts : 2n -> 1024 = 2048 vecteur
-        - 8 pts : 3^n -> 1024 = 3,733918487e488
+        - 8 pts : 3^n -> 1024 = 3,733918487e+488
