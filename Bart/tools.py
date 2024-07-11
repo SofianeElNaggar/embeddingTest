@@ -2,6 +2,8 @@ import torch
 import random
 import itertools
 import math
+from collections import Counter
+import json
 
 def get_embedding(inputs, model):
     with torch.no_grad():
@@ -107,7 +109,7 @@ def rotate_around_point_lin(vector, distance):
 #min_lap : le nombre d'incrémentation minimum du cercle autour du point d'origine
 #max_lap : le nombre d'incrémentation maximum du cercle autour du point d'origine
 def find_neighbor_around(embedding, encoder_outputs, model, tokenizer, neighbor_number=1, step=0.5, start_distance=0, min_lap=0, max_lap=1):
-    words = []
+    
     n = 0
     
     if start_distance == 0:
@@ -115,9 +117,11 @@ def find_neighbor_around(embedding, encoder_outputs, model, tokenizer, neighbor_
     
     if min_lap>max_lap:
         max_lap = min_lap
-
-    while (len(words) <= neighbor_number and n<=min_lap) or max_lap>n:
         
+    words = []
+    
+    while (len(words) <= neighbor_number and n<=min_lap) or max_lap>n:
+        words = []
         print("- Distance " + str(start_distance + n*step) + " : ")
         
         list_embeddings = []
@@ -131,7 +135,7 @@ def find_neighbor_around(embedding, encoder_outputs, model, tokenizer, neighbor_
                 result = decode_embedding(encoder_outputs, model, tokenizer)
             words.append(result)
 
-        words = list(set(words))
+        words = dict(Counter(words))
         print(words)
         
         n += 1
@@ -145,3 +149,71 @@ def interpolate_vectors(v1, v2, n):
         interpolated_vector = (1 - alpha) * v1 + alpha * v2
         vectors.append(interpolated_vector)
     return vectors
+
+def interpolate_test(tokenizer, model, input_text1, input_text2, n=100):
+    input_text = "a"
+    inputs = tokenizer(input_text, return_tensors="pt")
+    encoder_outputs, embedding = get_embedding(inputs, model)
+
+    inputs1 = tokenizer(input_text1, return_tensors="pt")
+    encoder_outputs1, embedding1 = get_embedding(inputs1, model)
+
+    inputs2 = tokenizer(input_text2, return_tensors="pt")
+    encoder_outputs2, embedding2 = get_embedding(inputs2, model)
+    
+    assert len(embedding1) == 1 and len(embedding2) == 1
+
+    interpolated_vectors = interpolate_vectors(embedding1, embedding2, n)
+
+    result = []
+    result.append(input_text1)
+    for e in interpolated_vectors:
+        encoder_outputs.last_hidden_state[:, 1:2, :] = torch.FloatTensor(e)
+        result.append(decode_embedding(encoder_outputs, model, tokenizer))
+        
+    result.append(input_text2)
+    result = dict(Counter(result))
+    return result
+
+def random_interpolate_test(tokenizer, model, nb_result, nb_point=100):
+    result = []
+    while len(result) < nb_result:
+        
+        input_text = "a"
+        inputs = tokenizer(input_text, return_tensors="pt")
+        encoder_outputs, embedding = get_embedding(inputs, model)
+        
+        input_text1 = random_word()
+        inputs1 = tokenizer(input_text1, return_tensors="pt")
+        encoder_outputs1, embedding1 = get_embedding(inputs1, model)
+        
+        while len(embedding1) != 1:
+            input_text1 = random_word()
+            inputs1 = tokenizer(input_text1, return_tensors="pt")
+            encoder_outputs1, embedding1 = get_embedding(inputs1, model)
+            
+        input_text2 = random_word()
+        inputs2 = tokenizer(input_text2, return_tensors="pt")
+        encoder_outputs1, embedding2 = get_embedding(inputs2, model)
+        
+        while len(embedding2) != 1:
+            input_text2 = random_word()
+            inputs2 = tokenizer(input_text2, return_tensors="pt")
+            encoder_outputs1, embedding2 = get_embedding(inputs2, model)
+            
+        interpolated_vectors = interpolate_vectors(embedding1, embedding2, nb_point)
+        
+        r = []
+        r.append(input_text1)
+        for e in interpolated_vectors:
+            encoder_outputs.last_hidden_state[:, 1:2, :] = torch.FloatTensor(e)
+            r.append(decode_embedding(encoder_outputs, model, tokenizer))
+        r.append(input_text2)
+         
+        r = dict(Counter(r))
+        if len(r)>=3:
+            result.append(r)
+            print(str(len(result)) + "/" + str(nb_result))
+            
+    with open('result.json', 'w') as json_file:
+        json.dump(result, json_file, indent=4)    

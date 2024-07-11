@@ -62,7 +62,7 @@ Bart :
         - num_beam = 1
         - early_stopping = False
 
-    - Tokenizer : BartTokenizer = AutoTokenizer
+    - Tokenizer : BartTokenizer == AutoTokenizer
 
     - Valuer min vecteur embedding -2.1
     - Valeur max vecteur embedding 1.4
@@ -73,20 +73,32 @@ Bart :
 
     - Test voisins (4 pts) - bart-base :
         - 'coffee' (2 tokens):
-            - Distance 1 : ['coffee']
-            - Distance 2 : ['', 'coffeecoffeeffeecocoffee', 'advertisement', 'coffeecoffee', 'coffee']
-            - Distance 3 : ['', 'coffeecoffeeffeecocoffee', 'advertisement', 'coffeecoffeeffeecocoffeecffeecoffffeeco coffeecoffee', 'coffeecoffeeffeecocoffeescoffee', 'coffeecoffee', 'coffee', 'coffeecoffeeffeecocoffeewatercoffeecffeecoffecoffeetoffeecooffcoffeeoffeeco-coffee']
+            - Distance 1 : {'coffee': 1536}
+            - Distance 2 : {'coffee': 1530, 'advertisement': 1, 'coffeecoffee': 3, 'coffeecoffeeffeecocoffee': 1, '': 1}
+            - Distance 3 : {'coffee': 1523, 'advertisement': 2, 'coffeecoffeeffeecocoffeecffeecoffffeeco coffeecoffee': 1, 'coffeecoffeeffeecocoffee': 3, 'coffeecoffeeffeecocoffeescoffee': 1, '': 2, 'coffeecoffee': 3, 'coffeecoffeeffeecocoffeewatercoffeecffeecoffecoffeetoffeecooffcoffeeoffeeco-coffee': 1}
         - 'hello' (1 token): 
-            - Distance 1 : ['hellohello', 'hello']
-            - Distance 2 : ['', 'hello', 'advertisement', 'hellohello', 'hellohellohello']
-            - Distance 3 : ['', 'hello', 'advertisement', 'hellohellohello', 'hellohello']
+            - Distance 1 : {'hello': 1534, 'hellohello': 2}
+            - Distance 2 : {'hello': 1525, 'advertisement': 1, 'hellohellohello': 5, 'hellohello': 3, '': 2}
+            - Distance 3 : {'hello': 1517, 'advertisement': 3, 'hellohellohello': 10, 'hellohello': 4, '': 2}
 
     - Test voisins (4 pts) - bart-large :
-        - 'coffee' (2 tokens):
-            - Distance 1 : ['coffee']
-            - Distance 2 : ['coffeecoffee', 'coffee.coffee', 'coffee']
-            - Distance 3 : ['', 'cocoffee', 'cobee', 'concaffe.coffee', 'coffee.coffee', 'coffee', ',', 'coffee.', 'coffee.coffee-mocha.co.co', 'coffeecoffee', 'coffeeco.', 'coff', 'coag', 'coffee www.coffee', 'cocoffeecoffee.coffeewww.coffe.cocoffewww.coffeecoffee', 'coffeewww.coffee', '.www.coffee.com/blog.com.co.za', 'co-', 'coffee.coffeecoffeewww.coffe.co.cocoffee', 'cococof ( ( ( T ( ( A ( ( and ( ( M ( ( B ( ( really ( ( D ( ( " ( ( R ( ( I ( ( O ( ( definitely ( ( St ( ( Y', 'co.co']
-   
-       - Test cecle :
-        - 4 pts : 2n -> 1024 = 2048 vecteur
-        - 8 pts : 3^n -> 1024 = 3,733918487e+488
+        - 'coffee' (2 tokens) (bien bien long):
+            - Distance 1 : {'coffee': 2048}
+            - Distance 2 : {'coffee': 2044, 'coffee.coffee': 3, 'coffeecoffee': 1}
+            - Distance 3 : {'coffee': 1970, 'coffee.coffee': 26, '': 21, 'coffee.': 12, 'coffeecoffee': 3, 'coff': 1, 'cococof ( ( ( T ( ( A ( ( and ( ( M ( ( B ( ( really ( ( D ( ( " ( ( R ( ( I ( ( O ( ( definitely ( ( St ( ( Y': 1, 'cocoffeecoffee.coffeewww.coffe.cocoffewww.coffeecoffee': 1, 'coffeewww.coffee': 1, 'coffee www.coffee': 1, 'coffeeco.': 1, 'coffee.coffee-mocha.co.co': 1, 'coag': 1, 'coffee.coffeecoffeewww.coffe.co.cocoffee': 1, 'cocoffee': 1, 'co-': 1, ',': 1, 'concaffe.coffee': 1, 'cobee': 1, 'co.co': 1, '.www.coffee.com/blog.com.co.za': 1}
+        - 'hello' (1 token):
+            - Distance 1 : {'hello': 2047, 'hellohello': 1}
+            - Distance 2 : {'hello': 2044, '': 2, 'hellohello': 1, 'hellohellohellohellohello': 1}
+            - Distance 3 : {'hello': 2007, 'hello.hello': 2, '': 24, 'SOURCE:': 2, 'hellohello': 7, 'hellohellohellohellohello': 1, 'hellohellohello': 1, 'SOURCE: www.thedailybeast.com': 1, 'SOURCE: www.hello': 1, 'mayhem@postmedia.com': 1, 'SOURCE: http://www.worldnews.com.au/news/world-news/2017/07/27/world/world_news_news/': 1}
+
+    - Test voisins cercle :
+        - 4 pts : 2n -> 1024 = 2048 vecteurs
+        - 8 pts : 3^n -> 1024 = 3,733918487e+488 vecteurs
+    
+    - Test interpolation : 
+        - random_interpolate_test() : ~2.5 results/min
+        - Binôme "interessant" :
+            - west - nature
+            - stroke - rest
+            - add - button
+            - online - search
