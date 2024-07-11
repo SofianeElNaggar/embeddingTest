@@ -24,7 +24,7 @@ def decode_embedding(encoder_outputs, model, tokenizer):
         early_stopping=False
     )
     # Décoder les tokens de sortie en texte lisible
-    result = tokenizer.decode(output_sequences[0], skip_special_tokens=False)
+    result = tokenizer.decode(output_sequences[0], skip_special_tokens=True)
     
     return result
 
@@ -52,7 +52,7 @@ def generate_positions(n, distance):
     return positions
 
 #8 pts pour n=2
-#Ne pas utiliser pour l'instant
+#Ne pas utiliser
 def rotate_around_point_expo(vector, distance):
     n = len(vector)
     rotated_vectors = []
@@ -101,34 +101,40 @@ def rotate_around_point_lin(vector, distance):
     return rotated_vectors
 
 #Regarde autour d'un mot 
-#variant_number : le nombre de variant minimum à trouver pour stoper le programme
+#neighbor_number : le nombre de voisin minimum à trouver pour stoper le programme
 #step : distance d'incrémentation du cercle à chaque itération
 #start_distance : distance de départ de l'incrémentation du cecle (si 0, l'incrémentation commencera à une distance de step)
 #min_lap : le nombre d'incrémentation minimum du cercle autour du point d'origine
 #max_lap : le nombre d'incrémentation maximum du cercle autour du point d'origine
-def find_variant_around(embedding, encoder_outputs, model, tokenizer, variant_number=1, step=0.5, start_distance=0, min_lap=1, max_lap=2):
+def find_neighbor_around(embedding, encoder_outputs, model, tokenizer, neighbor_number=1, step=0.5, start_distance=0, min_lap=0, max_lap=1):
     words = []
     n = 0
     
     if start_distance == 0:
         start_distance = step
     
-    assert min_lap<=max_lap
+    if min_lap>max_lap:
+        max_lap = min_lap
 
-    while len(words) <= variant_number and n<=min_lap or max_lap>n:
+    while (len(words) <= neighbor_number and n<=min_lap) or max_lap>n:
         
-        #[0] solution provisoir, il faudrais faire tout les embedding
+        print("- Distance " + str(start_distance + n*step) + " : ")
+        
+        list_embeddings = []
         for i in range(len(embedding)):
             embeddings = rotate_around_point_lin(embedding[i], start_distance + n*step)
+            list_embeddings.append(embeddings)
             
-            for e in embeddings:
-                encoder_outputs.last_hidden_state[:, 1+i:2+i, :] = torch.FloatTensor(e)
+        for i in range(len(list_embeddings[0])):
+            for j in range(len(list_embeddings)):
+                encoder_outputs.last_hidden_state[:, 1+j:2+j, :] = torch.FloatTensor(list_embeddings[j][i])
                 result = decode_embedding(encoder_outputs, model, tokenizer)
-                words.append(result)
+            words.append(result)
 
-            words = list(set(words))
-            print(words)
-            n += 1
+        words = list(set(words))
+        print(words)
+        
+        n += 1
 
     return words
 

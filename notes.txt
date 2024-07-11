@@ -62,6 +62,8 @@ Bart :
         - num_beam = 1
         - early_stopping = False
 
+    - Tokenizer : BartTokenizer = AutoTokenizer
+
     - Valuer min vecteur embedding -2.1
     - Valeur max vecteur embedding 1.4
 
@@ -69,29 +71,22 @@ Bart :
         - min : 4.3
         - max : 5.07
 
-    - Test variants (4 pts) - bart-large - AutoTokenizer:
-        - 'Hello :
-            - Distance 1 : ['hello', 'hellohello']
-            - Distance 2 : ['', 'hellohellohellohellohello', 'hellohello', 'hello']
-            - Distance 4 : ['', 'SOURCE:', '.', 'hello.hello.', 'hellohellohello', 'hellohellohellowwwhellohello.hellohelloSOURCEhellohellomayhellohellohttphellohello', 'hello', "'", 'hellohello', 'm.m.gisak@tribpublishing.com', 'SOURCE: www.matthewmccall.com.', 't', 'ak.gofundefined', 'deal', 't.m.', 'SOURCE: http://www.huffingtonpost.com/', 'www.happen.com.uk/news/world/world-news/', 'hellohellohellohellohello', 'www.hometown', 'Copyright 2016', 'hello.', 'SOURCE: www.theguardian.com.hello', 'SOURCE: www.truro.com', 'The www.cbsnews.com/news/local/2018/11/19/cbs-news/', 'SOURCE', 'hello.hello', 'gfang@tribune.com, https://www.wj.com/']
-            -
-        - 'coffee' :
+    - Test voisins (4 pts) - bart-base :
+        - 'coffee' (2 tokens):
             - Distance 1 : ['coffee']
-            - Distance 2 : ['coffee', 'coffee.coffee']
-            - Distance 3 : ['', 'coffee', 'coffee.coffee', 'www.coffee.com/news/news-and-politics/news_story/news.story?id=7', 'coffee.coffeecoffee', 'coco', 'coffeecoffee']
-    
-    - Test variants (4 pts) - bart-base - AutoTokenizer:
-        - 'coffee' :
-            - Distance 1 : ['coffee']
-            - Distance 2 : ['cococoffee', 'coffeecoffee', 'coffee']
-            - Distance 3 : ['', 'coffeecoffeeffeecocoffeewww.coffee.co.coco.comcoffee', 'cococoffeecoco-coco', 'cococoffeecoco-coco:cocofococoococochococo', 'coffeecoffeeffeecocoffee', 'www.coffee', 'advertisement', 'cococowwwcocoscocomorecocohttpcocotococo', 'cococoffeecocowwwcoco:coco://coco :cocoococohttpcocofcocolitecocofriedcocowatercocopetcococoxcococovercocoochco', 'coffeecoffeedelcococoffeeffeecoco coffeecoffee coffeecocolecoffee', 'coffeecoffee', 'cococoffeecococcoco cococofcoco-cocowww.coco.coffee.co.comcoco:cocochococo://coco', 'cococoffeecoco.cocoffecoffee', 'coffee']
+            - Distance 2 : ['', 'coffeecoffeeffeecocoffee', 'advertisement', 'coffeecoffee', 'coffee']
+            - Distance 3 : ['', 'coffeecoffeeffeecocoffee', 'advertisement', 'coffeecoffeeffeecocoffeecffeecoffffeeco coffeecoffee', 'coffeecoffeeffeecocoffeescoffee', 'coffeecoffee', 'coffee', 'coffeecoffeeffeecocoffeewatercoffeecffeecoffecoffeetoffeecooffcoffeeoffeeco-coffee']
+        - 'hello' (1 token): 
+            - Distance 1 : ['hellohello', 'hello']
+            - Distance 2 : ['', 'hello', 'advertisement', 'hellohello', 'hellohellohello']
+            - Distance 3 : ['', 'hello', 'advertisement', 'hellohellohello', 'hellohello']
 
-    - Test variants (4 pts) - bart-base - BartTokenizer:
-        - 'coffee' :
+    - Test voisins (4 pts) - bart-large :
+        - 'coffee' (2 tokens):
             - Distance 1 : ['coffee']
-            - Distance 2 : ['cococoffeecoco', 'coffeecoffee', 'coffee']
-            - Distance 3 : ['', 'coffee', 'coffeecoffee', 'cococoffeecoco-coco:coco.cocowww.coffee.co.comcoco cococo', 'cococoffeecoco-coco://coco.coco:cocowww.coffee.co.comcocohttpcoco :cocoococolitecocoffecocochocococox', 'cococowwwcocoscoco', 'cococoffee']
-
-    - Test cecle :
+            - Distance 2 : ['coffeecoffee', 'coffee.coffee', 'coffee']
+            - Distance 3 : ['', 'cocoffee', 'cobee', 'concaffe.coffee', 'coffee.coffee', 'coffee', ',', 'coffee.', 'coffee.coffee-mocha.co.co', 'coffeecoffee', 'coffeeco.', 'coff', 'coag', 'coffee www.coffee', 'cocoffeecoffee.coffeewww.coffe.cocoffewww.coffeecoffee', 'coffeewww.coffee', '.www.coffee.com/blog.com.co.za', 'co-', 'coffee.coffeecoffeewww.coffe.co.cocoffee', 'cococof ( ( ( T ( ( A ( ( and ( ( M ( ( B ( ( really ( ( D ( ( " ( ( R ( ( I ( ( O ( ( definitely ( ( St ( ( Y', 'co.co']
+   
+       - Test cecle :
         - 4 pts : 2n -> 1024 = 2048 vecteur
         - 8 pts : 3^n -> 1024 = 3,733918487e+488
