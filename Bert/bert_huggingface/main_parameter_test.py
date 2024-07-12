@@ -1,4 +1,4 @@
-from get_embeding import *
+from Bert.bert_huggingface.get_embedding import *
 from transformers import BertModel, BertTokenizer, BertConfig
 from tools import *
 import matplotlib.pyplot as plt

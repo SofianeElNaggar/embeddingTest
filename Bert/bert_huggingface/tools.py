@@ -2,7 +2,7 @@ import re
 import random
 import matplotlib.pyplot as plt
 from transformers import BertModel, BertConfig
-from get_embeding import *
+from Bert.bert_huggingface.get_embedding import *
 import numpy as np
 
 #Tranforme les tokens de sortie en un string

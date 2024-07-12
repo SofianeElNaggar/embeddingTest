@@ -26,7 +26,7 @@ def decode_embedding(encoder_outputs, model, tokenizer):
         early_stopping=False
     )
     # Décoder les tokens de sortie en texte lisible
-    result = tokenizer.batch_decode(output_sequences[0], skip_special_tokens=True)
+    result = tokenizer.batch_decode(output_sequences[0], skip_special_tokens=False)
     
     return result
 
