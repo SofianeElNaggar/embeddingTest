@@ -50,13 +50,19 @@ Test de distance :
         Troisième quartile (Q3): 1.0251342274156077
 
 
-Bart : 
+Bart :
     - bart-large : 
         - vocab_size : 50265
         - embedding_size : 1024
     - bart-base :
         - vocab_size : 50265
         - embedding_size : 768
+
+    - Vocab : 
+        - mot commençant par Ġ = mot précédé d'un espace
+        - Pour bart-large, les mots précédé d'un espace seront soit transcrit en "" soit, un autre mot sera ajouté devant 
+          ex : ' coffee' -> "" | " Coffee" -> "Mr. Coffee"
+        - Pour bart-base, la majorité des mots précédé d'un espace seront transcrit en advertisement, pourquoi ? 🤷
 
     - Paramètre :
         - num_beam = 1
@@ -76,16 +82,30 @@ Bart :
             - Distance 1 : {'coffee': 1536}
             - Distance 2 : {'coffee': 1530, 'advertisement': 1, 'coffeecoffee': 3, 'coffeecoffeeffeecocoffee': 1, '': 1}
             - Distance 3 : {'coffee': 1523, 'advertisement': 2, 'coffeecoffeeffeecocoffeecffeecoffffeeco coffeecoffee': 1, 'coffeecoffeeffeecocoffee': 3, 'coffeecoffeeffeecocoffeescoffee': 1, '': 2, 'coffeecoffee': 3, 'coffeecoffeeffeecocoffeewatercoffeecffeecoffecoffeetoffeecooffcoffeeoffeeco-coffee': 1}
+        - ' coffee' (1 token): ' coffee' est traduit en 'advertisement' par decode_embedding() -> première erreur remarqué sur le décode
+            - Distance 0.5 : {'advertisement': 1536}
+            - Distance 1 : {'advertisement': 1535, ' coffee': 1}
+            - Distance 1.5 : {'advertisement': 1532, ' coffee coffee coffee': 4}
         - 'hello' (1 token): 
             - Distance 1 : {'hello': 1534, 'hellohello': 2}
             - Distance 2 : {'hello': 1525, 'advertisement': 1, 'hellohellohello': 5, 'hellohello': 3, '': 2}
             - Distance 3 : {'hello': 1517, 'advertisement': 3, 'hellohellohello': 10, 'hellohello': 4, '': 2}
+        - 'Advertisement' :
+            - Distance 1 : {'Advertisement': 1534, 'advertisement': 2}
+            - Distance 2 : {'Advertisement': 1524, 'advertisement': 8, 'AdvertisementAdvertisementAdvertisement': 2, 'AdvertisementAdvertisement': 2}
+            - Distance 3 : {'Advertisement': 1499, 'advertisement': 29, 'AdvertisementAdvertisementAdvertisement': 7, 'AdvertisementAdvertisement': 1}
+        - 'advertisement' :
+            - Distance 1 : {'advertisement': 1536}
+            - Distance 2 : {'advertisement': 1531, 'advertisementadvertisementadvertisement': 3, 'advertisementadvertisement': 2}
+            - Distance 3 : {'advertisement': 1530, 'advertisementadvertisementadvertisement': 6}
 
     - Test voisins (4 pts) - bart-large :
         - 'coffee' (2 tokens) (bien bien long):
             - Distance 1 : {'coffee': 2048}
             - Distance 2 : {'coffee': 2044, 'coffee.coffee': 3, 'coffeecoffee': 1}
             - Distance 3 : {'coffee': 1970, 'coffee.coffee': 26, '': 21, 'coffee.': 12, 'coffeecoffee': 3, 'coff': 1, 'cococof ( ( ( T ( ( A ( ( and ( ( M ( ( B ( ( really ( ( D ( ( " ( ( R ( ( I ( ( O ( ( definitely ( ( St ( ( Y': 1, 'cocoffeecoffee.coffeewww.coffe.cocoffewww.coffeecoffee': 1, 'coffeewww.coffee': 1, 'coffee www.coffee': 1, 'coffeeco.': 1, 'coffee.coffee-mocha.co.co': 1, 'coag': 1, 'coffee.coffeecoffeewww.coffe.co.cocoffee': 1, 'cocoffee': 1, 'co-': 1, ',': 1, 'concaffe.coffee': 1, 'cobee': 1, 'co.co': 1, '.www.coffee.com/blog.com.co.za': 1}
+        - ' coffee' (1 token):
+            - Distance 1 :
         - 'hello' (1 token):
             - Distance 1 : {'hello': 2047, 'hellohello': 1}
             - Distance 2 : {'hello': 2044, '': 2, 'hellohello': 1, 'hellohellohellohellohello': 1}

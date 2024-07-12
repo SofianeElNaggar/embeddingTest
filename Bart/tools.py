@@ -26,7 +26,7 @@ def decode_embedding(encoder_outputs, model, tokenizer):
         early_stopping=False
     )
     # Décoder les tokens de sortie en texte lisible
-    result = tokenizer.decode(output_sequences[0], skip_special_tokens=True)
+    result = tokenizer.batch_decode(output_sequences[0], skip_special_tokens=True)
     
     return result
 
@@ -214,6 +214,7 @@ def random_interpolate_test(tokenizer, model, nb_result, nb_point=100):
         if len(r)>=3:
             result.append(r)
             print(str(len(result)) + "/" + str(nb_result))
-            
+    
+           
     with open('result.json', 'w') as json_file:
         json.dump(result, json_file, indent=4)    
