@@ -49,7 +49,6 @@ Test de distance :
         Premier quartile (Q1): 0.9757540288061908
         Troisième quartile (Q3): 1.0251342274156077
 
-
 Bart :
     - bart-large : 
         - vocab_size : 50265

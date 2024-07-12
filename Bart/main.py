@@ -2,6 +2,7 @@ from transformers import BartForConditionalGeneration, BartTokenizer
 from tools import *
 import numpy as np
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model = "facebook/bart-large"
 
@@ -9,8 +10,6 @@ tokenizer = BartTokenizer.from_pretrained(model)
 model = BartForConditionalGeneration.from_pretrained(model)
 
 #random_interpolate_test(tokenizer, model, 150)
-
-
 
 input_text = "hello"
 inputs = tokenizer(input_text, return_tensors="pt")
