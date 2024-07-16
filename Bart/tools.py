@@ -32,7 +32,7 @@ def batch_decode_embedding(encoder_outputs, model, tokenizer):
     tokenizer (transformers.PreTrainedTokenizer): Tokenizer used to decode the output tokens.
     
     Returns:
-    list: Decoded sequences as text.
+    list: Decoded sequences as tokenized text.
     """
     decoder_start_token = model.config.decoder_start_token_id
     decoder_input_ids = torch.tensor([[decoder_start_token]], device=encoder_outputs.last_hidden_state.device)
@@ -47,7 +47,7 @@ def batch_decode_embedding(encoder_outputs, model, tokenizer):
             early_stopping=False
         )
     
-    result = tokenizer.batch_decode(output_sequences[0], skip_special_tokens=True)
+    result = tokenizer.batch_decode(output_sequences[0])
     
     return result
 
@@ -163,7 +163,7 @@ def find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, n
     model (transformers.PreTrainedModel): The transformer model used for decoding.
     tokenizer (transformers.PreTrainedTokenizer): Tokenizer used to decode the output tokens.
     device (torch.device): Device to perform computations on.
-    neighbor_number (int): Number of neighbors to find.
+    neighbor_number (int): Number of minimum neighbors to find.
     step (float): Incremental step distance for each iteration.
     start_distance (float): Starting distance for the first iteration.
     min_lap (int): Minimum number of iterations.
@@ -197,7 +197,7 @@ def find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, n
                 result = decode_embedding(encoder_outputs, model, tokenizer)
                 results.append(result)
             
-        words[distance] = dict(Counter(results))
+        words["Distance : " + str(distance)] = dict(Counter(results))
         distance += step
         n += 1
 
@@ -246,7 +246,7 @@ def interpolate_test(tokenizer, model, device, input_text1, input_text2, n=100):
 
     inputs2 = tokenizer(input_text2, return_tensors="pt").to(device)
     encoder_outputs2, embedding2 = get_embedding(inputs2, model)
-    
+
     assert len(embedding1) == 1 and len(embedding2) == 1
 
     interpolated_vectors = interpolate_vectors(embedding1, embedding2, n)
@@ -276,9 +276,13 @@ def random_interpolate_test(tokenizer, model, device, nb_result, nb_point=100):
     list: List of dictionaries containing the interpolation results for each pair.
     """
     all_results = []
+    
     for i in range(nb_result):
         word1 = random_word()
         word2 = random_word()
+        if word1 not in tokenizer.get_vocab() or word2 not in tokenizer.get_vocab():
+            i -= 1
+            continue
         result = interpolate_test(tokenizer, model, device, word1, word2, n=nb_point)
         all_results.append(result)
     return all_results

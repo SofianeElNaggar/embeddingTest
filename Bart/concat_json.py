@@ -16,6 +16,8 @@ def concat_json_files(input_folder, output_file):
                 for item in data:
                     # Vérifier chaque clé et sa valeur
                     valid = True
+                    if len(item) < 3 :
+                        valid = False
                     for key, value in item.items():
                         if key == "":
                             valid = False
@@ -32,7 +34,7 @@ def concat_json_files(input_folder, output_file):
         
         
 # Utilisation de la fonction
-input_folder = './Bart/result_interpolation'  # Remplacez par le chemin de votre dossier contenant les fichiers JSON
+input_folder = './Bart/results/result_interpolation'  # Remplacez par le chemin de votre dossier contenant les fichiers JSON
 output_file = './Bart/result_interpolation.json'  # Remplacez par le chemin du fichier de sortie souhaité
 
 concat_json_files(input_folder, output_file)

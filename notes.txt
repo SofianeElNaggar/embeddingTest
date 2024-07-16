@@ -118,3 +118,5 @@ Bart :
         - random_interpolate_test() : 
             - cpu : ~2.5 results/min
             - cuda : ~15 results/min
+
+Test le fait de forcer le token de séparation à ceux pour le caractère ""

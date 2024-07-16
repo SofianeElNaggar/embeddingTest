@@ -50,17 +50,17 @@ model = BartForConditionalGeneration.from_pretrained(model)
 
 model.to(device)
 
-input_text = "hello"
+"""input_text = "hello"
 inputs = tokenizer(input_text, return_tensors="pt").to(device)
 encoder_outputs, embedding = get_embedding(inputs, model)
 
-sauvegarder_en_json(find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, step=0.5, start_distance=0.5, max_lap=1), './Bart/neighbor_hello_05.json')
+sauvegarder_en_json(find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, step=0.5, start_distance=0.5, min_lap=10), './Bart/results/neighbor_hello.json')
 
-
-"""map = calculate_distances_and_indices("Bart/sentences_pair.json", device, tokenizer, model)
+"""
+map = calculate_distances_and_indices("Bart/inputs/sentences_pair.json", device, tokenizer, model)
 stat = calculate_statistics(map)
 
-sauvegarder_en_json(stat, "./Bart/stats_distances.json")"""
+sauvegarder_en_json(stat, "./Bart/results/stats_distances_inv.json")
 
 
 
@@ -73,7 +73,7 @@ e2 = encoder_outputs2.last_hidden_state[0].cpu().detach().numpy()"""
 
 #print(distance_cosinus_between_vectors(e1, e2))
 
-#random_interpolate_test(tokenizer, model, device, 50)
+#sauvegarder_en_json(random_interpolate_test(tokenizer, model, device, 100),"./Bart/interpolation.json")
 
 #print(decode_embedding(encoder_outputs, model, tokenizer))
 
