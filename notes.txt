@@ -115,9 +115,6 @@ Bart :
         - 8 pts : 3^n -> 1024 = 3,733918487e+488 vecteurs
     
     - Test interpolation : 
-        - random_interpolate_test() : ~2.5 results/min
-        - Binôme "interessant" :
-            - west - nature
-            - stroke - rest
-            - add - button
-            - online - search
+        - random_interpolate_test() : 
+            - cpu : ~2.5 results/min
+            - cuda : ~15 results/min
