@@ -7,17 +7,36 @@ import json
 import numpy as np
 
 def get_embedding(inputs, model):
+    """
+    Extracts embeddings from the model's encoder for given inputs.
+    
+    Parameters:
+    inputs (dict): Input tensor dictionary compatible with the model.
+    model (transformers.PreTrainedModel): The transformer model used for encoding.
+    
+    Returns:
+    tuple: Encoder outputs and the extracted embeddings as a numpy array.
+    """
     with torch.no_grad():
         encoder_outputs = model.model.encoder(**inputs)
         embedding = encoder_outputs.last_hidden_state
     return encoder_outputs, embedding[0][1:-1].cpu().detach().numpy()
 
 def batch_decode_embedding(encoder_outputs, model, tokenizer):
-    # Initialiser l'entrée du décodeur avec le token de début de séquence
+    """
+    Decodes the embeddings into human-readable text using the model's decoder.
+    
+    Parameters:
+    encoder_outputs (transformers.modeling_outputs.BaseModelOutput): Outputs from the model's encoder.
+    model (transformers.PreTrainedModel): The transformer model used for decoding.
+    tokenizer (transformers.PreTrainedTokenizer): Tokenizer used to decode the output tokens.
+    
+    Returns:
+    list: Decoded sequences as text.
+    """
     decoder_start_token = model.config.decoder_start_token_id
     decoder_input_ids = torch.tensor([[decoder_start_token]], device=encoder_outputs.last_hidden_state.device)
     
-    # Générer la séquence de sortie en utilisant les embeddings de l'encodeur
     with torch.no_grad():
         output_sequences = model.generate(
             input_ids=None,
@@ -28,17 +47,25 @@ def batch_decode_embedding(encoder_outputs, model, tokenizer):
             early_stopping=False
         )
     
-    # Décoder les tokens de sortie en texte lisible
     result = tokenizer.batch_decode(output_sequences[0], skip_special_tokens=True)
     
     return result
 
 def decode_embedding(encoder_outputs, model, tokenizer):
-    # Initialiser l'entrée du décodeur avec le token de début de séquence
+    """
+    Decodes the embeddings into human-readable text using the model's decoder.
+    
+    Parameters:
+    encoder_outputs (transformers.modeling_outputs.BaseModelOutput): Outputs from the model's encoder.
+    model (transformers.PreTrainedModel): The transformer model used for decoding.
+    tokenizer (transformers.PreTrainedTokenizer): Tokenizer used to decode the output tokens.
+    
+    Returns:
+    str: Decoded sequence as text.
+    """
     decoder_start_token = model.config.decoder_start_token_id
     decoder_input_ids = torch.tensor([[decoder_start_token]], device=encoder_outputs.last_hidden_state.device)
     
-    # Générer la séquence de sortie en utilisant les embeddings de l'encodeur
     with torch.no_grad():
         output_sequences = model.generate(
             input_ids=None,
@@ -49,13 +76,17 @@ def decode_embedding(encoder_outputs, model, tokenizer):
             early_stopping=False
         )
     
-    # Décoder les tokens de sortie en texte lisible
     result = tokenizer.decode(output_sequences[0], skip_special_tokens=True)
     
     return result
 
-#Sélection un mot aléatoire dans un fichier
 def random_word():
+    """
+    Selects a random word from a file of common English words.
+    
+    Returns:
+    str: A randomly selected word.
+    """
     fichier = './english-common-words.txt'
     with open(fichier, 'r') as f:
         lignes = f.readlines()
@@ -63,12 +94,19 @@ def random_word():
     return ligne.strip()
 
 def generate_positions(n, distance):
-    # Generate all possible combinations of -1, 0, and 1 for n dimensions
+    """
+    Generates positions in n-dimensional space around a point at a given distance.
+    
+    Parameters:
+    n (int): Number of dimensions.
+    distance (float): Distance from the origin.
+    
+    Returns:
+    list: List of positions around the origin.
+    """
     directions = list(itertools.product([-1, 0, 1], repeat=n))
-    # Remove the origin (0, 0, ..., 0) since it's not a valid direction
     directions = [d for d in directions if any(d)]
     
-    # Normalize directions to have the correct distance
     positions = []
     for direction in directions:
         length = math.sqrt(sum(d**2 for d in direction))
@@ -78,12 +116,20 @@ def generate_positions(n, distance):
     return positions
 
 def rotate_around_point_lin(vector, distance):
+    """
+    Generates rotated vectors around a given vector in n-dimensional space.
+    
+    Parameters:
+    vector (list): The original vector.
+    distance (float): Distance to rotate around the original vector.
+    
+    Returns:
+    list: List of rotated vectors.
+    """
     n = len(vector)
     rotated_vectors = []
 
-    # Positions relatives autour du point central
     positions = []
-    # Directions cardinales
     for i in range(n):
         pos = [0] * n
         pos[i] = distance
@@ -92,7 +138,6 @@ def rotate_around_point_lin(vector, distance):
         pos[i] = -distance
         positions.append(pos)
 
-    # Diagonales (en 2D)
     if n == 2:
         diagonal_distance = distance / math.sqrt(2)
         positions.extend([
@@ -102,20 +147,31 @@ def rotate_around_point_lin(vector, distance):
             [-diagonal_distance, -diagonal_distance]
         ])
 
-    # Calculer les vecteurs tournés
     for pos in positions:
         rotated_vector = [vector[i] + pos[i] for i in range(n)]
         rotated_vectors.append(rotated_vector)
 
     return rotated_vectors
 
-#Regarde autour d'un mot 
-#neighbor_number : le nombre de voisin minimum à trouver pour stoper le programme
-#step : distance d'incrémentation du cercle à chaque itération
-#start_distance : distance de départ de l'incrémentation du cecle (si 0, l'incrémentation commencera à une distance de step)
-#min_lap : le nombre d'incrémentation minimum du cercle autour du point d'origine
-#max_lap : le nombre d'incrémentation maximum du cercle autour du point d'origine
 def find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, neighbor_number=1, step=0.5, start_distance=0, min_lap=0, max_lap=1):
+    """
+    Finds neighbors around a given embedding by rotating in n-dimensional space.
+    
+    Parameters:
+    embedding (list): The original embedding.
+    encoder_outputs (transformers.modeling_outputs.BaseModelOutput): Outputs from the model's encoder.
+    model (transformers.PreTrainedModel): The transformer model used for decoding.
+    tokenizer (transformers.PreTrainedTokenizer): Tokenizer used to decode the output tokens.
+    device (torch.device): Device to perform computations on.
+    neighbor_number (int): Number of neighbors to find.
+    step (float): Incremental step distance for each iteration.
+    start_distance (float): Starting distance for the first iteration.
+    min_lap (int): Minimum number of iterations.
+    max_lap (int): Maximum number of iterations.
+    
+    Returns:
+    dict: Dictionary of found neighbors with distances as keys.
+    """
     n = 0
     
     if start_distance == 0:
@@ -148,14 +204,39 @@ def find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, n
     return words
 
 def interpolate_vectors(v1, v2, n):
+    """
+    Interpolates between two vectors linearly.
+    
+    Parameters:
+    v1 (list): The first vector.
+    v2 (list): The second vector.
+    n (int): Number of interpolation steps.
+    
+    Returns:
+    list: List of interpolated vectors.
+    """
     vectors = []
     for i in range(n):
-        alpha = i / (n - 1)  # interpolation parameter from 0 to 1
+        alpha = i / (n - 1)
         interpolated_vector = (1 - alpha) * v1 + alpha * v2
         vectors.append(interpolated_vector)
     return vectors
 
 def interpolate_test(tokenizer, model, device, input_text1, input_text2, n=100):
+    """
+    Interpolates between the embeddings of two input texts and decodes the interpolations.
+    
+    Parameters:
+    tokenizer (transformers.PreTrainedTokenizer): Tokenizer used to encode the input texts.
+    model (transformers.PreTrainedModel): The transformer model used for encoding and decoding.
+    device (torch.device): Device to perform computations on.
+    input_text1 (str): The first input text.
+    input_text2 (str): The second input text.
+    n (int): Number of interpolation steps.
+    
+    Returns:
+    dict: Counter dictionary of decoded interpolated texts.
+    """
     input_text = "a"
     inputs = tokenizer(input_text, return_tensors="pt").to(device)
     encoder_outputs, embedding = get_embedding(inputs, model)
@@ -181,61 +262,59 @@ def interpolate_test(tokenizer, model, device, input_text1, input_text2, n=100):
     return result
 
 def random_interpolate_test(tokenizer, model, device, nb_result, nb_point=100):
-    result = []
-    while len(result) < nb_result:
-        
-        input_text = "a"
-        inputs = tokenizer(input_text, return_tensors="pt").to(device)
-        encoder_outputs, embedding = get_embedding(inputs, model)
-        
-        input_text1 = random_word()
-        inputs1 = tokenizer(input_text1, return_tensors="pt").to(device)
-        encoder_outputs1, embedding1 = get_embedding(inputs1, model)
-        
-        while len(embedding1) != 1:
-            input_text1 = random_word()
-            inputs1 = tokenizer(input_text1, return_tensors="pt").to(device)
-            encoder_outputs1, embedding1 = get_embedding(inputs1, model)
-            
-        input_text2 = random_word()
-        inputs2 = tokenizer(input_text2, return_tensors="pt").to(device)
-        encoder_outputs1, embedding2 = get_embedding(inputs2, model)
-        
-        while len(embedding2) != 1:
-            input_text2 = random_word()
-            inputs2 = tokenizer(input_text2, return_tensors="pt").to(device)
-            encoder_outputs1, embedding2 = get_embedding(inputs2, model)
-            
-        interpolated_vectors = interpolate_vectors(embedding1, embedding2, nb_point)
-        
-        r = []
-        r.append(input_text1)
-        for e in interpolated_vectors:
-            encoder_outputs.last_hidden_state[:, 1:2, :] = torch.FloatTensor(e).to(device)
-            r.append(decode_embedding(encoder_outputs, model, tokenizer))
-        r.append(input_text2)
-        
-        r = dict(Counter(r))
-        if len(r)>=3:
-            result.append(r)
-            print(str(len(result)) + "/" + str(nb_result))
+    """
+    Randomly selects word pairs, interpolates between their embeddings, and decodes the results.
     
-           
-    with open('result.json', 'w') as json_file:
-        json.dump(result, json_file, indent=4)    
-        
+    Parameters:
+    tokenizer (transformers.PreTrainedTokenizer): Tokenizer used to encode the input texts.
+    model (transformers.PreTrainedModel): The transformer model used for encoding and decoding.
+    device (torch.device): Device to perform computations on.
+    nb_result (int): Number of word pairs to process.
+    nb_point (int): Number of interpolation steps.
+    
+    Returns:
+    list: List of dictionaries containing the interpolation results for each pair.
+    """
+    all_results = []
+    for i in range(nb_result):
+        word1 = random_word()
+        word2 = random_word()
+        result = interpolate_test(tokenizer, model, device, word1, word2, n=nb_point)
+        all_results.append(result)
+    return all_results
+
 def distance_euclid_between_vectors(liste_vecteurs1, liste_vecteurs2):
+    """
+    Calculate the Euclidean distance between corresponding vectors in two lists.
+    
+    Parameters:
+    liste_vecteurs1 (list): First list of vectors.
+    liste_vecteurs2 (list): Second list of vectors.
+    
+    Returns:
+    list: Euclidean distances between each pair of vectors.
+    """
     distances = []
     for v1, v2 in zip(liste_vecteurs1, liste_vecteurs2):
-        # Convertir les listes en tableaux numpy pour faciliter les calculs
+        # Convert lists to numpy arrays for easier calculations
         v1_np = np.array(v1)
         v2_np = np.array(v2)
-        # Calculer la distance euclidienne entre les deux vecteurs
+        # Calculate the Euclidean distance between the two vectors
         distance = np.linalg.norm(v1_np - v2_np)
         distances.append(distance)
     return distances
 
 def cosinus_distance(v1, v2):
+    """
+    Calculate the cosine distance between two vectors.
+    
+    Parameters:
+    v1 (list): First vector.
+    v2 (list): Second vector.
+    
+    Returns:
+    float: Cosine distance between the two vectors.
+    """
     dot_product = np.dot(v1, v2)
     norm_v1 = np.linalg.norm(v1)
     norm_v2 = np.linalg.norm(v2)
@@ -244,8 +323,18 @@ def cosinus_distance(v1, v2):
     return cos_dist
 
 def distance_cosinus_between_vectors(liste_vecteurs1, liste_vecteurs2):
+    """
+    Calculate the cosine distances between corresponding vectors in two lists.
+    
+    Parameters:
+    liste_vecteurs1 (list): First list of vectors.
+    liste_vecteurs2 (list): Second list of vectors.
+    
+    Returns:
+    list: Cosine distances between each pair of vectors.
+    """
     if len(liste_vecteurs1) != len(liste_vecteurs2):
-        raise ValueError("Les deux listes de vecteurs doivent être de même longueur.")
+        raise ValueError("The two lists of vectors must be of the same length.")
     
     distances = []
     for v1, v2 in zip(liste_vecteurs1, liste_vecteurs2):
@@ -255,10 +344,19 @@ def distance_cosinus_between_vectors(liste_vecteurs1, liste_vecteurs2):
     return distances
 
 def check_tokenization_integrity(sentence, tokenized_sentence):
-    original_words = sentence.split()
-    tokenized_sentence = tokenized_sentence
+    """
+    Check if the tokenized sentence matches the original sentence in terms of word structure.
     
-    # Enlever les tokens spéciaux si présents
+    Parameters:
+    sentence (str): The original sentence.
+    tokenized_sentence (list): List of tokens from the tokenized sentence.
+    
+    Returns:
+    bool: True if the tokenized sentence matches the original sentence, False otherwise.
+    """
+    original_words = sentence.split()
+    
+    # Remove special tokens if present
     if tokenized_sentence[0] == '</s>' and tokenized_sentence[1] == '<s>':
         tokenized_sentence = tokenized_sentence[2:-1]
     
@@ -273,7 +371,7 @@ def check_tokenization_integrity(sentence, tokenized_sentence):
         else:
             current_word += token
     
-    # Ajouter le dernier mot reconstruit
+    # Add the last reconstructed word
     if current_word:
         reconstructed_words.append(current_word.strip())
     
@@ -287,22 +385,42 @@ def check_tokenization_integrity(sentence, tokenized_sentence):
     return True
 
 def find_different_word_index(sentence1, sentence2):
-    # Split each sentence into lists of words
+    """
+    Find the index of the first different word between two sentences.
+    
+    Parameters:
+    sentence1 (str): The first sentence.
+    sentence2 (str): The second sentence.
+    
+    Returns:
+    int: The index of the first different word. Returns -1 if no difference is found.
+    """
     words1 = sentence1.split()
     words2 = sentence2.split()
     
-    # Compare word by word
     for i in range(len(words1)):
         if words1[i] != words2[i]:
             return i  # Return the index of the first different word
     
-    # If no difference found (should not happen if assumptions are met)
     return -1
 
 def calculate_distances_and_indices(json_file, device, tokenizer, model):
+    """
+    Calculate Euclidean and cosine distances between embeddings of sentence pairs from a JSON file.
+    Also find the index of the first different word between each pair.
+    
+    Parameters:
+    json_file (str): Path to the JSON file containing sentence pairs.
+    device (torch.device): Device to perform computations on.
+    tokenizer (transformers.PreTrainedTokenizer): Tokenizer for encoding sentences.
+    model (transformers.PreTrainedModel): Transformer model for obtaining embeddings.
+    
+    Returns:
+    list: Results containing distances and different word indices for each sentence pair.
+    """
     results = []
     
-    # Charger le fichier JSON
+    # Load the JSON file
     with open(json_file, 'r') as f:
         data = json.load(f)
     
@@ -310,16 +428,17 @@ def calculate_distances_and_indices(json_file, device, tokenizer, model):
         sentence1 = pair['sentence1']
         sentence2 = pair['sentence2']
         
-        # Obtenir les embeddings pour sentence1
+        # Get embeddings for sentence1
         inputs1 = tokenizer(sentence1, return_tensors="pt").to(device)
         encoder_outputs1, embedding1 = get_embedding(inputs1, model)
         e1 = encoder_outputs1.last_hidden_state[0].cpu().detach().numpy()
         
-        # Obtenir les embeddings
+        # Get embeddings for sentence2
         inputs2 = tokenizer(sentence2, return_tensors="pt").to(device)
         encoder_outputs2, embedding2 = get_embedding(inputs2, model)
         e2 = encoder_outputs2.last_hidden_state[0].cpu().detach().numpy()
         
+        # Check tokenization integrity
         b1 = check_tokenization_integrity(sentence1, batch_decode_embedding(encoder_outputs1, model, tokenizer))
         b2 = check_tokenization_integrity(sentence2, batch_decode_embedding(encoder_outputs2, model, tokenizer))
         
@@ -329,27 +448,38 @@ def calculate_distances_and_indices(json_file, device, tokenizer, model):
         if len(e1) != len(e2):
             continue
         
-        # Calculer la distance entre les vecteurs d'embedding
+        # Calculate distances between embeddings
         distances_euclid = distance_euclid_between_vectors(e1, e2)
         distances_cosinus = distance_cosinus_between_vectors(e1, e2)
         
-        # Trouver l'indice du premier mot différent
+        # Find the index of the first different word
         idx_different_word = find_different_word_index(sentence1, sentence2)
         
-        # Créer un résultat pour cette paire
+        # Create a result for this pair
         result = {
             "distance_euclid": distances_euclid,
             "distance_cosinus": distances_cosinus,
-            "different_word_index": idx_different_word+1
+            "different_word_index": idx_different_word + 1
         }
         
-        # Ajouter le résultat à la liste des résultats
+        # Add the result to the list of results
         results.append(result)
     
     return results
 
 def distance_between_random_words(device, model, tokenizer, n):
+    """
+    Calculate distances between random word pairs using their embeddings.
     
+    Parameters:
+    device (torch.device): Device to perform computations on.
+    model (transformers.PreTrainedModel): Transformer model for obtaining embeddings.
+    tokenizer (transformers.PreTrainedTokenizer): Tokenizer for encoding words.
+    n (int): Number of word pairs to process.
+    
+    Returns:
+    dict: Statistical results of the distances between word pairs.
+    """
     results = []
     
     for i in range(n):
@@ -363,26 +493,35 @@ def distance_between_random_words(device, model, tokenizer, n):
         encoder_outputs2, embedding2 = get_embedding(inputs, model)
         e2 = encoder_outputs2.last_hidden_state[0].cpu().detach().numpy()
         
-        if len(e1) != 3 or len(e2) !=3:
+        if len(e1) != 3 or len(e2) != 3:
             continue
         
-        # Calculer la distance entre les vecteurs d'embedding
+        # Calculate distances between embeddings
         distances_euclid = distance_euclid_between_vectors(e1, e2)
         distances_cosinus = distance_cosinus_between_vectors(e1, e2)
         
-        # Créer un résultat pour cette paire
+        # Create a result for this pair
         result = {
             "distance_euclid": distances_euclid,
             "distance_cosinus": distances_cosinus,
             "different_word_index": 1
         }
         
-        # Ajouter le résultat à la liste des résultats
+        # Add the result to the list of results
         results.append(result)
     
     return calculate_statistics(results)
 
 def calculate_statistics(results):
+    """
+    Calculate statistical measures on the distances between words.
+    
+    Parameters:
+    results (list): List of results containing distances and different word indices.
+    
+    Returns:
+    dict: Statistical measures on Euclidean and cosine distances.
+    """
     diff_distances_euclid = []
     diff_minus_one_distances_euclid = []
     diff_plus_one_distances_euclid = []
@@ -401,13 +540,13 @@ def calculate_statistics(results):
         idx = result['different_word_index']
         
         if idx <= 0 or idx >= len(distances_euclid) - 1:
-            continue  # Ignorer les cas où l'indice du mot différent est aux bords ou invalide
+            continue  # Ignore cases where the different word index is at the edges or invalid
         
-        # Ajouter la distance du mot différent
+        # Add the distance of the different word
         diff_distances_euclid.append(distances_euclid[idx])
         diff_distances_cosinus.append(distances_cosinus[idx])
                 
-        # Ajouter la distance des mots à un indice de distance, si valides
+        # Add the distance of words at one index away, if valid
         if idx - 1 > 0:
             diff_minus_one_distances_euclid.append(distances_euclid[idx - 1])
             diff_minus_one_distances_cosinus.append(distances_cosinus[idx - 1])
@@ -415,7 +554,7 @@ def calculate_statistics(results):
             diff_plus_one_distances_euclid.append(distances_euclid[idx + 1])
             diff_plus_one_distances_cosinus.append(distances_cosinus[idx + 1])
         
-        # Ajouter la distance des mots à deux indices de distance, si valides
+        # Add the distance of words at two indices away, if valid
         if idx - 2 > 0:
             diff_minus_two_distances_euclid.append(distances_euclid[idx - 2])
             diff_minus_two_distances_cosinus.append(distances_cosinus[idx - 2])
@@ -423,7 +562,7 @@ def calculate_statistics(results):
             diff_plus_two_distances_euclid.append(distances_euclid[idx + 2])
             diff_plus_two_distances_cosinus.append(distances_cosinus[idx + 2])
     
-    # Calculer les moyennes
+    # Calculate means
     mean_diff_distance_euclid = np.mean(diff_distances_euclid) if diff_distances_euclid else float('nan')
     mean_diff_minus_one_distance_euclid = np.mean(diff_minus_one_distances_euclid) if diff_minus_one_distances_euclid else float('nan')
     mean_diff_plus_one_distance_euclid = np.mean(diff_plus_one_distances_euclid) if diff_plus_one_distances_euclid else float('nan')

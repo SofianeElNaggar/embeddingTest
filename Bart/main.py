@@ -54,7 +54,7 @@ input_text = "hello"
 inputs = tokenizer(input_text, return_tensors="pt").to(device)
 encoder_outputs, embedding = get_embedding(inputs, model)
 
-sauvegarder_en_json(find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, step=0.5, start_distance=0.5, min_lap=5), './Bart/neighbor_hello_05.json')
+sauvegarder_en_json(find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, step=0.5, start_distance=0.5, max_lap=1), './Bart/neighbor_hello_05.json')
 
 
 """map = calculate_distances_and_indices("Bart/sentences_pair.json", device, tokenizer, model)
