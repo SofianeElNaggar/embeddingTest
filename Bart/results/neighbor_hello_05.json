@@ -1,0 +1,26 @@
+{
+    "0.5": {
+        "hello": 2048
+    },
+    "1.0": {
+        "hello": 2047,
+        "hellohello": 1
+    },
+    "1.5": {
+        "hello": 2046,
+        "": 1,
+        "hellohello": 1
+    },
+    "2.0": {
+        "hello": 2044,
+        "": 2,
+        "hellohello": 1,
+        "hellohellohellohellohello": 1
+    },
+    "2.5": {
+        "hello": 2038,
+        "": 6,
+        "hellohello": 3,
+        "hellohellohellohellohello": 1
+    }
+}

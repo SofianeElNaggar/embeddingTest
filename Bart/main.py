@@ -50,8 +50,12 @@ model = BartForConditionalGeneration.from_pretrained(model)
 
 model.to(device)
 
+input_text = "hello"
+inputs = tokenizer(input_text, return_tensors="pt").to(device)
+encoder_outputs, embedding = get_embedding(inputs, model)
 
-sauvegarder_en_json(distance_between_random_words(device, model, tokenizer, 1000), "./Bart/stats_distance_random.json")
+sauvegarder_en_json(find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, step=0.5, start_distance=0.5, min_lap=5), './Bart/neighbor_hello_05.json')
+
 
 """map = calculate_distances_and_indices("Bart/sentences_pair.json", device, tokenizer, model)
 stat = calculate_statistics(map)
@@ -59,11 +63,8 @@ stat = calculate_statistics(map)
 sauvegarder_en_json(stat, "./Bart/stats_distances.json")"""
 
 
-"""input_text = "hello"
-inputs = tokenizer(input_text, return_tensors="pt").to(device)
-encoder_outputs, embedding = get_embedding(inputs, model)
-e1 = encoder_outputs.last_hidden_state[0].cpu().detach().numpy()
 
+"""
 input_text2 = "Fonction computing gcd"
 inputs2 = tokenizer(input_text2, return_tensors="pt").to(device)
 encoder_outputs2, embedding2 = get_embedding(inputs2, model)
@@ -76,5 +77,6 @@ e2 = encoder_outputs2.last_hidden_state[0].cpu().detach().numpy()"""
 
 #print(decode_embedding(encoder_outputs, model, tokenizer))
 
-#find_neighbor_around(embedding, encoder_outputs, model, tokenizer, step=1, start_distance=1, min_lap=3)
 
+
+#sauvegarder_en_json(distance_between_random_words(device, model, tokenizer, 1000), "./Bart/stats_distance_random.json")

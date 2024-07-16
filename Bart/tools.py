@@ -116,35 +116,33 @@ def rotate_around_point_lin(vector, distance):
 #min_lap : le nombre d'incrémentation minimum du cercle autour du point d'origine
 #max_lap : le nombre d'incrémentation maximum du cercle autour du point d'origine
 def find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, neighbor_number=1, step=0.5, start_distance=0, min_lap=0, max_lap=1):
-    
     n = 0
     
     if start_distance == 0:
         start_distance = step
     
-    if min_lap>max_lap:
+    if min_lap > max_lap:
         max_lap = min_lap
         
-    words = []
+    words = {}
+    distance = start_distance
     
-    while (len(words) <= neighbor_number and n<=min_lap) or max_lap>n:
-        words = []
-        print("- Distance " + str(start_distance + n*step) + " : ")
+    while (len(words) <= neighbor_number and n <= min_lap) or max_lap > n:
         
         list_embeddings = []
         for i in range(len(embedding)):
-            embeddings = rotate_around_point_lin(embedding[i], start_distance + n*step)
+            embeddings = rotate_around_point_lin(embedding[i], distance)
             list_embeddings.append(embeddings)
             
+        results = []
         for i in range(len(list_embeddings[0])):
             for j in range(len(list_embeddings)):
                 encoder_outputs.last_hidden_state[:, 1+j:2+j, :] = torch.FloatTensor(list_embeddings[j][i]).to(device)
                 result = decode_embedding(encoder_outputs, model, tokenizer)
-            words.append(result)
-
-        words = dict(Counter(words))
-        print(words)
-        
+                results.append(result)
+            
+        words[distance] = dict(Counter(results))
+        distance += step
         n += 1
 
     return words
