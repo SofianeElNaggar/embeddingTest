@@ -57,8 +57,8 @@ inputs = tokenizer(input_text, return_tensors="pt").to(device)
 
 
 
-
-"""list_of_lists = number_of_dimension_change(model, tokenizer, device, 0.1,"Bart/inputs/sentences_pair.json")
+"""
+list_of_lists = number_of_dimension_change(model, tokenizer, device, 0.05,"Bart/inputs/sentences_pair.json")
 
 # Aplatir la liste de listes en une seule liste
 flattened_list = [item for sublist in list_of_lists for item in sublist]
@@ -79,6 +79,7 @@ plt.title('Histogramme des apparitions des valeurs')
 plt.grid(True)
 plt.show()
 """
+
 #print(compute_average_distances(compute_translation_vectors(tokenizer, model, device, "./Bart/inputs/word_pair.json")))
 # ????
 
