@@ -1,0 +1,82 @@
+[
+    {
+        "masculin": "king",
+        "feminin": "queen"
+    },
+    {
+        "masculin": "man",
+        "feminin": "woman"
+    },
+    {
+        "masculin": "boy",
+        "feminin": "girl"
+    },
+    {
+        "masculin": "father",
+        "feminin": "mother"
+    },
+    {
+        "masculin": "brother",
+        "feminin": "sister"
+    },
+    {
+        "masculin": "uncle",
+        "feminin": "aunt"
+    },
+    {
+        "masculin": "son",
+        "feminin": "daughter"
+    },
+    {
+        "masculin": "nephew",
+        "feminin": "niece"
+    },
+    {
+        "masculin": "husband",
+        "feminin": "wife"
+    },
+    {
+        "masculin": "prince",
+        "feminin": "princess"
+    },
+    {
+        "masculin": "actor",
+        "feminin": "actress"
+    },
+    {
+        "masculin": "waiter",
+        "feminin": "waitress"
+    },
+    {
+        "masculin": "hero",
+        "feminin": "heroine"
+    },
+    {
+        "masculin": "duke",
+        "feminin": "duchess"
+    },
+    {
+        "masculin": "wizard",
+        "feminin": "witch"
+    },
+    {
+        "masculin": "steward",
+        "feminin": "stewardess"
+    },
+    {
+        "masculin": "bachelor",
+        "feminin": "bachelorette"
+    },
+    {
+        "masculin": "god",
+        "feminin": "goddess"
+    },
+    {
+        "masculin": "emperor",
+        "feminin": "empress"
+    },
+    {
+        "masculin": "host",
+        "feminin": "hostess"
+    }
+]

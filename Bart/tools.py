@@ -5,6 +5,8 @@ import math
 from collections import Counter
 import json
 import numpy as np
+from numpy import linalg as LA
+from scipy.spatial.distance import euclidean, cosine
 
 def get_embedding(inputs, model):
     """
@@ -280,9 +282,9 @@ def random_interpolate_test(tokenizer, model, device, nb_result, nb_point=100):
     for i in range(nb_result):
         word1 = random_word()
         word2 = random_word()
-        if word1 not in tokenizer.get_vocab() or word2 not in tokenizer.get_vocab():
-            i -= 1
-            continue
+        while word1 not in tokenizer.get_vocab() or word2 not in tokenizer.get_vocab():
+            word1 = random_word()
+            word2 = random_word()
         result = interpolate_test(tokenizer, model, device, word1, word2, n=nb_point)
         all_results.append(result)
     return all_results
@@ -599,3 +601,210 @@ def calculate_statistics(results):
         "stat_euclid": stat_euclid,
         "stat_cosinus": stat_cosinus
     }
+
+def dimention_change(v1, v2):
+    result = []
+    for i in range(len(v1)):
+        result.append(LA.norm(v1[i]-v2[i]))
+    return result
+
+def number_of_dimension_change(model, tokenizer, device, tol, json_file):
+    results = []
+    
+    # Load the JSON file
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+    
+    for pair in data:
+        sentence1 = pair['sentence1']
+        sentence2 = pair['sentence2']
+        
+        # Get embeddings for sentence1
+        inputs1 = tokenizer(sentence1, return_tensors="pt").to(device)
+        encoder_outputs1, embedding1 = get_embedding(inputs1, model)
+        e1 = encoder_outputs1.last_hidden_state[0].cpu().detach().numpy()
+        
+        # Get embeddings for sentence2
+        inputs2 = tokenizer(sentence2, return_tensors="pt").to(device)
+        encoder_outputs2, embedding2 = get_embedding(inputs2, model)
+        e2 = encoder_outputs2.last_hidden_state[0].cpu().detach().numpy()
+        
+        # Check tokenization integrity
+        b1 = check_tokenization_integrity(sentence1, batch_decode_embedding(encoder_outputs1, model, tokenizer))
+        b2 = check_tokenization_integrity(sentence2, batch_decode_embedding(encoder_outputs2, model, tokenizer))
+        
+        if not b1 or not b2:
+            continue
+        
+        if len(e1) != len(e2):
+            continue
+        
+        # Find the index of the first different word
+        idx_different_word = find_different_word_index(sentence1, sentence2)
+        
+        dif = dimention_change(e1[idx_different_word], e2[idx_different_word])
+        i = 0
+        v = []        
+        for d in dif:
+            if d > tol:
+                v.append(i)
+            i += 1
+        results.append(v)
+    return results         
+        
+
+def change_special_tokens_vectors(model, tokenizer, device, embedding_test, n):
+    """
+    Replace embeddings of special tokens associated with a word in the model's tokenizer vocabulary 
+    with the provided new embedding.
+
+    Parameters:
+    model (transformers.PreTrainedModel): Transformer model to modify.
+    tokenizer (transformers.PreTrainedTokenizer): Tokenizer associated with the model.
+    device (torch.device): Device to perform computations on.
+    embedding_test (list): New embedding vector to replace the special token embeddings.
+    n (int): Number of random words to process.
+
+    Returns:
+    dict: Mapping of each random word to its new decoded embedding.
+    """
+    result = {}
+    
+    for i in range(n):
+        random_input = random_word()
+        while random_input not in tokenizer.get_vocab():
+            random_input = random_word()
+        
+        inputs = tokenizer(random_input, return_tensors="pt").to(device)
+        encoder_outputs, embedding = get_embedding(inputs, model)
+        encoder_outputs.last_hidden_state[:, 1:2, :] = torch.FloatTensor(embedding_test).to(device)
+        
+        result[random_input] = decode_embedding(encoder_outputs, model, tokenizer)
+    
+    return result
+
+def add_noise(lst, noise_percentage):
+    """
+    Add random noise to each value in the list, modifying each value by ±10% of its value.
+
+    Parameters:
+    lst (list of float/int): The original list of values to which noise will be added.
+    noise_percentage (float/int): The percentage of noise to apply.
+
+    Returns:
+    list of float: A new list with each original value modified by a random factor between -10% and +10%.
+    """
+    noisy_list = []
+    for value in lst:
+        factor = 1 + random.uniform(-noise_percentage/100, noise_percentage/100)
+        noisy_value = value * factor
+        noisy_list.append(noisy_value)
+    return noisy_list
+
+def add_noise_to_special_tokens(model, tokenizer, device, encoder_outputs, n = 100, noise_percentage = 10):
+    """
+    Add noise to the embeddings of special tokens in the encoder outputs and decode the noisy embeddings.
+
+    Parameters:
+    model (transformers.PreTrainedModel): Transformer model used for decoding.
+    tokenizer (transformers.PreTrainedTokenizer): Tokenizer associated with the model.
+    device (torch.device): Device to perform computations on.
+    encoder_outputs (torch.Tensor): Encoder outputs containing the embeddings.
+    n (int, optional): Number of noisy embeddings to generate. Default is 100.
+    noise_percentage (float, optional): Percentage of noise to add to the embeddings. Default is 10.
+
+    Returns:
+    list: List of decoded embeddings after noise has been added.
+    """
+    embedding = encoder_outputs.last_hidden_state[0].cpu().detach().numpy()
+    result = []
+    for j in range(n):
+        i = 0
+        for e in embedding:
+            if i != 0 and i != len(embedding)-1:
+                i +=1
+                continue
+            noisy_e = add_noise(e, noise_percentage)
+            encoder_outputs.last_hidden_state[0][i] = torch.FloatTensor(noisy_e).to(device)
+            i +=1
+        result.append(decode_embedding(encoder_outputs, model, tokenizer))
+    return result
+
+def compute_translation_vectors(tokenizer, model, device, json_file):
+    """
+    Computes translation vectors between the embeddings of masculine and feminine words.
+
+    Arguments:
+    json_file -- path to a JSON file containing a list of masculine and feminine word pairs
+                 JSON file format:
+                 [
+                     {
+                         "masculin": "king",
+                         "feminin": "queen"
+                     },
+                     ...
+                 ]
+
+    Returns:
+    A list of translation vectors between the embeddings of masculine and feminine words.
+    Each translation vector is represented as a list of floats.
+    """
+    with open(json_file, 'r') as file:
+        word_pairs = json.load(file)
+    
+    translation_vectors = []
+    
+    for pair in word_pairs:
+        masculine_word = pair["masculin"]
+        feminine_word = pair["feminin"]
+        
+        if masculine_word not in tokenizer.get_vocab() or feminine_word not in tokenizer.get_vocab():
+            continue
+        
+        # Tokenize the words
+        masculine_inputs = tokenizer(masculine_word, return_tensors="pt").to(device)
+        feminine_inputs = tokenizer(feminine_word, return_tensors="pt").to(device)
+        
+        # Get the embeddings
+        masculine_encoder_outputs, masculine_embedding = get_embedding(masculine_inputs, model)
+        feminine_encoder_outputs, feminine_embedding = get_embedding(feminine_inputs, model)
+        
+        # Compute the translation vector
+        translation_vector = feminine_embedding - masculine_embedding
+        translation_vectors.append(translation_vector.squeeze().tolist())
+    
+    return translation_vectors
+
+def compute_average_distances(vectors):
+    """
+    Computes the average Euclidean and cosine distances between each pair of vectors.
+
+    Arguments:
+    vectors -- a list of vectors, where each vector is represented as a list of floats.
+
+    Returns:
+    A dictionary with the average Euclidean distance and the average cosine distance.
+    """
+    num_vectors = len(vectors)
+    euclidean_distances = []
+    cosine_distances = []
+    
+    for i in range(num_vectors):
+        for j in range(i + 1, num_vectors):
+            vec1 = np.array(vectors[i])
+            vec2 = np.array(vectors[j])
+            
+            # Compute Euclidean distance
+            euclidean_distances.append(euclidean(vec1, vec2))
+            
+            # Compute cosine distance
+            cosine_distances.append(cosine(vec1, vec2))
+    
+    average_euclidean = np.mean(euclidean_distances)
+    average_cosine = np.mean(cosine_distances)
+    
+    return {
+        "average_euclidean_distance": average_euclidean,
+        "average_cosine_distance": average_cosine
+    }
+    
