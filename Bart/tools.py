@@ -696,7 +696,7 @@ def add_noise(lst, noise_percentage):
     noisy_list = []
     for value in lst:
         factor = 1 + random.uniform(-noise_percentage/100, noise_percentage/100)
-        noisy_value = value * factor
+        noisy_value = 0#value * factor
         noisy_list.append(noisy_value)
     return noisy_list
 
@@ -727,7 +727,7 @@ def add_noise_to_special_tokens(model, tokenizer, device, encoder_outputs, n = 1
             noisy_e = add_noise(e, noise_percentage)
             encoder_outputs.last_hidden_state[0][i] = torch.FloatTensor(noisy_e).to(device)
             i +=1
-        result.append(decode_embedding(encoder_outputs, model, tokenizer))
+        result.append(batch_decode_embedding(encoder_outputs, model, tokenizer))
     return result
 
 def compute_translation_vectors(tokenizer, model, device, json_file):

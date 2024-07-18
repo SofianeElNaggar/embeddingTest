@@ -52,9 +52,13 @@ model = BartForConditionalGeneration.from_pretrained(model)
 
 model.to(device)
 
-input_text = "hello"
+"""
+input_text = "Hello"
 inputs = tokenizer(input_text, return_tensors="pt").to(device)
 encoder_outputs, embedding = get_embedding(inputs, model)
+print("input : " + input_text)
+print("output : " + decode_embedding(encoder_outputs, model, tokenizer))
+"""
 
 """
 list_of_lists = number_of_dimension_change(model, tokenizer, device, 0.05,"Bart/inputs/sentences_pair.json")
@@ -88,7 +92,7 @@ inputs = tokenizer(input_text, return_tensors="pt").to(device)
 encoder_outputs, embedding = get_embedding(inputs, model)
 
 noise = add_noise_to_special_tokens(model, tokenizer, device, encoder_outputs, 100, 0)
-sauvegarder_en_json(noise, './Bart/results/noise_last_special_token_hello_0_batch.json')
+sauvegarder_en_json(noise, './Bart/results/0_last_special_token_hello_batch.json')
 
 
 """
