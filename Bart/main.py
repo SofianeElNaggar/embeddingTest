@@ -92,7 +92,7 @@ inputs = tokenizer(input_text, return_tensors="pt").to(device)
 encoder_outputs, embedding = get_embedding(inputs, model)
 
 noise = add_noise_to_special_tokens(model, tokenizer, device, encoder_outputs, 100, 0)
-sauvegarder_en_json(noise, './Bart/results/0_last_special_token_hello_batch.json')
+sauvegarder_en_json(noise, './Bart/results/noise_last_special_token_hello.json')
 
 
 """
@@ -117,7 +117,6 @@ sauvegarder_en_json(stat, "./Bart/results/stats_distances_inv.json")
 """
 
 
-
 """
 input_text2 = "Fonction computing gcd"
 inputs2 = tokenizer(input_text2, return_tensors="pt").to(device)
@@ -126,6 +125,7 @@ e2 = encoder_outputs2.last_hidden_state[0].cpu().detach().numpy()
 
 print(distance_cosinus_between_vectors(e1, e2))
 """
+
 
 #sauvegarder_en_json(random_interpolate_test(tokenizer, model, device, 100),"./Bart/interpolation.json")
 
