@@ -652,7 +652,6 @@ def number_of_dimension_change(model, tokenizer, device, tol, json_file):
         results.append(v)
     return results         
         
-
 def change_special_tokens_vectors(model, tokenizer, device, embedding_test, n):
     """
     Replace embeddings of special tokens associated with a word in the model's tokenizer vocabulary 
@@ -721,7 +720,8 @@ def add_noise_to_special_tokens(model, tokenizer, device, encoder_outputs, n = 1
     for j in range(n):
         i = 0
         for e in embedding:
-            if i != 0 and i != len(embedding)-1:
+            #noise in the first token as no impact i != 0 or 
+            if i != len(embedding)-1:
                 i +=1
                 continue
             noisy_e = add_noise(e, noise_percentage)

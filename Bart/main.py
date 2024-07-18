@@ -54,8 +54,7 @@ model.to(device)
 
 input_text = "hello"
 inputs = tokenizer(input_text, return_tensors="pt").to(device)
-
-
+encoder_outputs, embedding = get_embedding(inputs, model)
 
 """
 list_of_lists = number_of_dimension_change(model, tokenizer, device, 0.05,"Bart/inputs/sentences_pair.json")
@@ -83,14 +82,14 @@ plt.show()
 #print(compute_average_distances(compute_translation_vectors(tokenizer, model, device, "./Bart/inputs/word_pair.json")))
 # ????
 
-"""
+
 input_text = "hello"
 inputs = tokenizer(input_text, return_tensors="pt").to(device)
 encoder_outputs, embedding = get_embedding(inputs, model)
 
-noise = add_noise_to_special_tokens(model, tokenizer, device, encoder_outputs, 100, 150)
-sauvegarder_en_json(noise, './Bart/results/noise_special_token_hello_150.json')
-"""
+noise = add_noise_to_special_tokens(model, tokenizer, device, encoder_outputs, 100, 0)
+sauvegarder_en_json(noise, './Bart/results/noise_last_special_token_hello_0_batch.json')
+
 
 """
 c = change_special_tokens_vectors(model, tokenizer, device, embedding, 3000)
