@@ -1,82 +1,82 @@
 [
     {
-        "masculin": "king",
-        "feminin": "queen"
+        "word1": "king",
+        "word2": "queen"
     },
     {
-        "masculin": "man",
-        "feminin": "woman"
+        "word1": "man",
+        "word2": "woman"
     },
     {
-        "masculin": "boy",
-        "feminin": "girl"
+        "word1": "boy",
+        "word2": "girl"
     },
     {
-        "masculin": "father",
-        "feminin": "mother"
+        "word1": "father",
+        "word2": "mother"
     },
     {
-        "masculin": "brother",
-        "feminin": "sister"
+        "word1": "brother",
+        "word2": "sister"
     },
     {
-        "masculin": "uncle",
-        "feminin": "aunt"
+        "word1": "uncle",
+        "word2": "aunt"
     },
     {
-        "masculin": "son",
-        "feminin": "daughter"
+        "word1": "son",
+        "word2": "daughter"
     },
     {
-        "masculin": "nephew",
-        "feminin": "niece"
+        "word1": "nephew",
+        "word2": "niece"
     },
     {
-        "masculin": "husband",
-        "feminin": "wife"
+        "word1": "husband",
+        "word2": "wife"
     },
     {
-        "masculin": "prince",
-        "feminin": "princess"
+        "word1": "prince",
+        "word2": "princess"
     },
     {
-        "masculin": "actor",
-        "feminin": "actress"
+        "word1": "actor",
+        "word2": "actress"
     },
     {
-        "masculin": "waiter",
-        "feminin": "waitress"
+        "word1": "waiter",
+        "word2": "waitress"
     },
     {
-        "masculin": "hero",
-        "feminin": "heroine"
+        "word1": "hero",
+        "word2": "heroine"
     },
     {
-        "masculin": "duke",
-        "feminin": "duchess"
+        "word1": "duke",
+        "word2": "duchess"
     },
     {
-        "masculin": "wizard",
-        "feminin": "witch"
+        "word1": "wizard",
+        "word2": "witch"
     },
     {
-        "masculin": "steward",
-        "feminin": "stewardess"
+        "word1": "steward",
+        "word2": "stewardess"
     },
     {
-        "masculin": "bachelor",
-        "feminin": "bachelorette"
+        "word1": "bachelor",
+        "word2": "bachelorette"
     },
     {
-        "masculin": "god",
-        "feminin": "goddess"
+        "word1": "god",
+        "word2": "goddess"
     },
     {
-        "masculin": "emperor",
-        "feminin": "empress"
+        "word1": "emperor",
+        "word2": "empress"
     },
     {
-        "masculin": "host",
-        "feminin": "hostess"
+        "word1": "host",
+        "word2": "hostess"
     }
 ]

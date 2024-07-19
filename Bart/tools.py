@@ -6,7 +6,7 @@ from collections import Counter
 import json
 import numpy as np
 from numpy import linalg as LA
-from scipy.spatial.distance import euclidean, cosine
+from scipy.spatial.distance import euclidean
 
 def get_embedding(inputs, model):
     """
@@ -44,7 +44,7 @@ def batch_decode_embedding(encoder_outputs, model, tokenizer):
             input_ids=None,
             encoder_outputs=encoder_outputs,
             decoder_input_ids=decoder_input_ids,
-            max_length=50,
+            max_new_tokens=len(encoder_outputs.last_hidden_state[0]),
             num_beams=1,
             early_stopping=False
         )
@@ -73,9 +73,9 @@ def decode_embedding(encoder_outputs, model, tokenizer):
             input_ids=None,
             encoder_outputs=encoder_outputs,
             decoder_input_ids=decoder_input_ids,
-            max_length=50,
             num_beams=1,
-            early_stopping=False
+            early_stopping=False,
+            max_new_tokens=len(encoder_outputs.last_hidden_state[0])
         )
     
     result = tokenizer.decode(output_sequences[0], skip_special_tokens=True)
@@ -732,21 +732,21 @@ def add_noise_to_special_tokens(model, tokenizer, device, encoder_outputs, n = 1
 
 def compute_translation_vectors(tokenizer, model, device, json_file):
     """
-    Computes translation vectors between the embeddings of masculine and feminine words.
+    Computes translation vectors between the embeddings of two words.
 
     Arguments:
-    json_file -- path to a JSON file containing a list of masculine and feminine word pairs
+    json_file -- path to a JSON file containing a list of words pairs
                  JSON file format:
                  [
                      {
-                         "masculin": "king",
-                         "feminin": "queen"
+                         "word1": "king",
+                         "word2": "queen"
                      },
                      ...
                  ]
 
     Returns:
-    A list of translation vectors between the embeddings of masculine and feminine words.
+    A list of translation vectors between the embeddings of words.
     Each translation vector is represented as a list of floats.
     """
     with open(json_file, 'r') as file:
@@ -755,22 +755,22 @@ def compute_translation_vectors(tokenizer, model, device, json_file):
     translation_vectors = []
     
     for pair in word_pairs:
-        masculine_word = pair["masculin"]
-        feminine_word = pair["feminin"]
+        word1 = pair["word1"]
+        word2 = pair["word2"]
         
-        if masculine_word not in tokenizer.get_vocab() or feminine_word not in tokenizer.get_vocab():
+        if word1 not in tokenizer.get_vocab() or word2 not in tokenizer.get_vocab():
             continue
         
         # Tokenize the words
-        masculine_inputs = tokenizer(masculine_word, return_tensors="pt").to(device)
-        feminine_inputs = tokenizer(feminine_word, return_tensors="pt").to(device)
+        word1_inputs = tokenizer(word1, return_tensors="pt").to(device)
+        word2_inputs = tokenizer(word2, return_tensors="pt").to(device)
         
         # Get the embeddings
-        masculine_encoder_outputs, masculine_embedding = get_embedding(masculine_inputs, model)
-        feminine_encoder_outputs, feminine_embedding = get_embedding(feminine_inputs, model)
+        word1_encoder_outputs, word1_embedding = get_embedding(word1_inputs, model)
+        word2_encoder_outputs, word2_embedding = get_embedding(word2_inputs, model)
         
         # Compute the translation vector
-        translation_vector = feminine_embedding - masculine_embedding
+        translation_vector = word2_embedding - word1_embedding
         translation_vectors.append(translation_vector.squeeze().tolist())
     
     return translation_vectors
@@ -798,7 +798,7 @@ def compute_average_distances(vectors):
             euclidean_distances.append(euclidean(vec1, vec2))
             
             # Compute cosine distance
-            cosine_distances.append(cosine(vec1, vec2))
+            cosine_distances.append(cosinus_distance(vec1, vec2))
     
     average_euclidean = np.mean(euclidean_distances)
     average_cosine = np.mean(cosine_distances)
@@ -808,3 +808,28 @@ def compute_average_distances(vectors):
         "average_cosine_distance": average_cosine
     }
     
+def change_dimension(model, tokenizer, encoder_outputs, d):
+    results = []
+    for i in np.arange(-2.5, 2.5, 0.1):
+        encoder_outputs.last_hidden_state[0][0][d] = i
+        result = decode_embedding(encoder_outputs, model, tokenizer)
+        results.append(result)
+    return results
+
+def change_all_dimension(model, tokenizer, encoder_outputs):
+    results = {}
+    for i in range(len(encoder_outputs.last_hidden_state[0][0])):
+        result = change_dimension(model, tokenizer, encoder_outputs, i)
+        results["dimension : " + str(i)] = remove_consecutive_duplicates(result)
+        print(str(i) + "/1024")
+    return results
+
+def remove_consecutive_duplicates(lst):
+    if not lst:
+        return []
+
+    result = [lst[0]]
+    for i in range(1, len(lst)):
+        if lst[i] != lst[i - 1]:
+            result.append(lst[i])
+    return result
