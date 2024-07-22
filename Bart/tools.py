@@ -821,7 +821,7 @@ def change_all_dimension(model, tokenizer, encoder_outputs):
     for i in range(len(encoder_outputs.last_hidden_state[0][0])):
         result = change_dimension(model, tokenizer, encoder_outputs, i)
         results["dimension : " + str(i)] = remove_consecutive_duplicates(result)
-        print(str(i) + "/1024")
+        print(str(i+1) + "/1024")
     return results
 
 def remove_consecutive_duplicates(lst):

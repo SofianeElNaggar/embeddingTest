@@ -53,6 +53,7 @@ model = BartForConditionalGeneration.from_pretrained(model)
 model.to(device)
 
 
+
 """
 input_text = "A man is <mask> in the street"
 inputs = tokenizer(input_text, return_tensors="pt").to(device)
@@ -106,13 +107,23 @@ sauvegarder_en_json(c, './Bart/results/test_special_token_hello.json')
 """
 
 
-"""
-input_text = "hello"
+input_text = random_word()
 inputs = tokenizer(input_text, return_tensors="pt").to(device)
 encoder_outputs, embedding = get_embedding(inputs, model)
 
-sauvegarder_en_json(find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, step=0.5, start_distance=0.5, min_lap=10), './Bart/results/neighbor/neighbor_hello_token_limite.json')
-"""
+sauvegarder_en_json(find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, step=0.5, start_distance=0.5, min_lap=10), './Bart/results/results token limit/neighbor/neighbor_' + input_text +'_token_limit.json')
+
+input_text = random_word()
+inputs = tokenizer(input_text, return_tensors="pt").to(device)
+encoder_outputs, embedding = get_embedding(inputs, model)
+
+sauvegarder_en_json(find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, step=0.5, start_distance=0.5, min_lap=10), './Bart/results/results token limit/neighbor/neighbor_' + input_text +'_token_limit.json')
+
+input_text = random_word()
+inputs = tokenizer(input_text, return_tensors="pt").to(device)
+encoder_outputs, embedding = get_embedding(inputs, model)
+
+sauvegarder_en_json(find_neighbor_around(embedding, encoder_outputs, model, tokenizer, device, step=0.5, start_distance=0.5, min_lap=10), './Bart/results/results token limit/neighbor/neighbor_' + input_text +'_token_limit.json')
 
 
 """
@@ -131,12 +142,14 @@ e2 = encoder_outputs2.last_hidden_state[0].cpu().detach().numpy()
 print(distance_cosinus_between_vectors(e1, e2))
 """
 
-input_text = "Queen"
+"""
+input_text = "model"
 inputs = tokenizer(input_text, return_tensors="pt").to(device)
 encoder_outputs, embedding = get_embedding(inputs, model)
-sauvegarder_en_json(change_all_dimension(model, tokenizer, encoder_outputs), "Bart/results/change_all_dim_queen.json")
+sauvegarder_en_json(change_all_dimension(model, tokenizer, encoder_outputs), "Bart/results/results token limit/change dim/change_all_dim_model.json")
+"""
 
-#sauvegarder_en_json(random_interpolate_test(tokenizer, model, device, 100),"./Bart/interpolation.json")
+#sauvegarder_en_json(random_interpolate_test(tokenizer, model, device, 1000),"./Bart/results/results token limit/interpolation2.json")
 
 #print(decode_embedding(encoder_outputs, model, tokenizer))
 
