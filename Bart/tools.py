@@ -833,3 +833,41 @@ def remove_consecutive_duplicates(lst):
         if lst[i] != lst[i - 1]:
             result.append(lst[i])
     return result
+
+def convert_numpy_types(donnees):
+    """
+    Convertit les types de données NumPy en types natifs Python.
+    
+    :param donnees: Les données à convertir.
+    :return: Les données avec les types convertis.
+    """
+    if isinstance(donnees, np.ndarray):
+        return donnees.tolist()
+    elif isinstance(donnees, np.generic):
+        return donnees.item()
+    elif isinstance(donnees, dict):
+        return {k: convert_numpy_types(v) for k, v in donnees.items()}
+    elif isinstance(donnees, list):
+        return [convert_numpy_types(v) for v in donnees]
+    elif isinstance(donnees, tuple):
+        return tuple(convert_numpy_types(v) for v in donnees)
+    elif isinstance(donnees, set):
+        return {convert_numpy_types(v) for v in donnees}
+    return donnees
+
+def sauvegarder_en_json(donnees, nom_fichier):
+    """
+    Sauvegarde les données fournies dans un fichier JSON après conversion des types NumPy.
+
+    :param donnees: Les données à sauvegarder (peut être une liste, un dictionnaire, etc.).
+    :param nom_fichier: Le nom du fichier dans lequel sauvegarder les données.
+    """
+    donnees_converties = convert_numpy_types(donnees)
+    
+    try:
+        with open(nom_fichier, 'w', encoding='utf-8') as fichier:
+            json.dump(donnees_converties, fichier, ensure_ascii=False, indent=4)
+        print(f"Les données ont été sauvegardées dans le fichier {nom_fichier}.")
+    except Exception as e:
+        print(f"Une erreur est survenue lors de la sauvegarde : {e}")
+

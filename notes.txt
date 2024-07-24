@@ -119,4 +119,10 @@ Bart :
             - cpu : ~2.5 results/min
             - cuda : ~15 results/min
 
-Test le fait de forcer le token de séparation à ceux pour le caractère ""
+- Embedding de code : 
+    - codeBert : nop
+    - codeParrot : bof
+    - codeGen : bof 
+    - 
+
+OpenAI APIkey : sk-None-55QIFzsu0vVcaPaMAHDoT3BlbkFJKxA9X07vkg0cGr0rhB3k
