@@ -1,0 +1,48 @@
+{
+    "Distance : 0.5": {
+        "hello": 2048
+    },
+    "Distance : 1.0": {
+        "hello": 2048
+    },
+    "Distance : 1.5": {
+        "hello": 2047,
+        "": 1
+    },
+    "Distance : 2.0": {
+        "hello": 2033,
+        "": 15
+    },
+    "Distance : 2.5": {
+        "hello": 1969,
+        "": 79
+    },
+    "Distance : 3.0": {
+        "hello": 1802,
+        "": 245,
+        "SOURCE": 1
+    },
+    "Distance : 3.5": {
+        "": 528,
+        "hello": 1519,
+        "SOURCE": 1
+    },
+    "Distance : 4.0": {
+        "": 897,
+        "hello": 1149,
+        "SOURCE": 1,
+        "The": 1
+    },
+    "Distance : 4.5": {
+        "": 1297,
+        "hello": 750,
+        "The": 1
+    },
+    "Distance : 5.0": {
+        "": 1586,
+        "hello": 459,
+        "\"": 1,
+        "www": 1,
+        "The": 1
+    }
+}
