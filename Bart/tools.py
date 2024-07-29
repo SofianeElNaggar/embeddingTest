@@ -5,8 +5,17 @@ import math
 from collections import Counter
 import json
 import numpy as np
+from transformers import BartForConditionalGeneration, BartTokenizer
 from numpy import linalg as LA
 from scipy.spatial.distance import euclidean
+
+def load_tokenizer_and_model(m="facebook/bart-large"):
+
+    tokenizer = BartTokenizer.from_pretrained(m)
+    model = BartForConditionalGeneration.from_pretrained(m)
+
+    return tokenizer,model
+
 
 def get_embedding(inputs, model):
     """
