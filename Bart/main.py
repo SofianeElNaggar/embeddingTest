@@ -3,6 +3,7 @@ from tools import *
 import tools as tools
 import torch
 import torch.nn.functional as F
+from torch import nn
 import numpy as np
 import json
 import matplotlib.pyplot as plt
@@ -63,11 +64,16 @@ attention_mask = inputs['attention_mask']
 attention_mask = attention_mask.to(dtype=torch.float)
 output_attentions = self.config.output_attentions
 
-# max_length = 512
-positional_embedding = self.embed_positions(inputs['input_ids'])
+input_ids = inputs['input_ids']
+input= input_ids
+#input_ids = input_ids.view(-1, input_ids[-1])
+
+# max_length = 1024
+positional_embedding = self.embed_positions(input).to(device)
 print("positional embedding : \n" + str(positional_embedding))
 
-inputs_embeddings = self.embed_tokens(inputs['input_ids'])
+self.embed_tokens = nn.Embedding(50265, 1024, self.padding_idx).to(device)
+inputs_embeddings = self.embed_tokens(input_ids).to(device)
 print("inputs embeddings : \n" + str(inputs_embeddings))
 
 hidden_states = inputs_embeddings + positional_embedding
@@ -76,8 +82,10 @@ print("hidden states : \n" + str(hidden_states))
 normalized_hidden_states = self.layernorm_embedding(hidden_states)
 print("normalized hidden states : \n" + str(normalized_hidden_states))
 
+encoder_states =  ()
 for encoder_layer in self.layers:
     final_hidden_states = encoder_layer(normalized_hidden_states, attention_mask, output_attentions=output_attentions, layer_head_mask=None)
+    encoder_states =  encoder_states + (hidden_states,) 
 final_hidden_states = final_hidden_states[0]
 print("final hidden states : \n" + str(final_hidden_states))
 
@@ -86,7 +94,7 @@ print("Original embedding : \n" + str(encoder_outputs.last_hidden_state))
 
 print("Original : \n" + str(batch_decode_embedding(encoder_outputs, model, tokenizer)))
 print(decode_embedding(encoder_outputs, model, tokenizer))
-encoder_states =  () + (hidden_states,) + (hidden_states,)
+encoder_states =  encoder_states + (hidden_states,) 
 encoder_outputs.last_hidden_state = final_hidden_states
 encoder_outputs.hidden_states = encoder_states
 print("Rebuild : \n" + str(batch_decode_embedding(encoder_outputs, model, tokenizer)))
