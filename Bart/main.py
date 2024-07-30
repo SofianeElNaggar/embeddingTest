@@ -2,6 +2,7 @@ from transformers import BartForConditionalGeneration, BartTokenizer, AutoTokeni
 from tools import *
 import tools as tools
 import torch
+import torch.nn.functional as F
 import numpy as np
 import json
 import matplotlib.pyplot as plt
@@ -52,24 +53,46 @@ perturb_decoded_seq = tools.batch_decode_embedding(Queen_encoder_outputs, model,
 print(perturb_decoded_seq)
 """
 
+self = model.model.encoder
 
-input_text = "He is a poor boy. You have no sympathy. You are my friend."
+input_text = "He is a good man. You have no sympathy. You are my friend."
 inputs = tokenizer(input_text, return_tensors="pt").to(device)
+encoder_outputs, embedding = get_embedding(inputs, model)
 
-embed_pos = model.model.encoder.embed_positions(inputs['input_ids'])
-inputs_embeds = model.model.encoder.embed_tokens(inputs['input_ids'])
-hidden_states = inputs_embeds + embed_pos
-normalized_hidden_states = model.model.encoder.layernorm_embedding(hidden_states)
+attention_mask = inputs['attention_mask']
+attention_mask = attention_mask.to(dtype=torch.float)
+output_attentions = self.config.output_attentions
 
 # max_length = 512
-print("pos : \n" + str(embed_pos))
-print("input embed : \n" + str(inputs_embeds))
+positional_embedding = self.embed_positions(inputs['input_ids'])
+print("positional embedding : \n" + str(positional_embedding))
+
+inputs_embeddings = self.embed_tokens(inputs['input_ids'])
+print("inputs embeddings : \n" + str(inputs_embeddings))
+
+hidden_states = inputs_embeddings + positional_embedding
 print("hidden states : \n" + str(hidden_states))
-print("normalized : \n" + str(normalized_hidden_states))
+
+normalized_hidden_states = self.layernorm_embedding(hidden_states)
+print("normalized hidden states : \n" + str(normalized_hidden_states))
+
+for encoder_layer in self.layers:
+    final_hidden_states = encoder_layer(normalized_hidden_states, attention_mask, output_attentions=output_attentions, layer_head_mask=None)
+final_hidden_states = final_hidden_states[0]
+print("final hidden states : \n" + str(final_hidden_states))
+
+print("Original embedding : \n" + str(encoder_outputs.last_hidden_state))
 
 
-encoder_outputs, embedding = get_embedding(inputs, model)
-print(encoder_outputs.hidden_states[-1])
+print("Original : \n" + str(batch_decode_embedding(encoder_outputs, model, tokenizer)))
+print(decode_embedding(encoder_outputs, model, tokenizer))
+encoder_states =  () + (hidden_states,) + (hidden_states,)
+encoder_outputs.last_hidden_state = final_hidden_states
+encoder_outputs.hidden_states = encoder_states
+print("Rebuild : \n" + str(batch_decode_embedding(encoder_outputs, model, tokenizer)))
+print(decode_embedding(encoder_outputs, model, tokenizer))
+
+
 
 """
 print("token : " + str(inputs))
