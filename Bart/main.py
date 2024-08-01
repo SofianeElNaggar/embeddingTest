@@ -54,60 +54,6 @@ perturb_decoded_seq = tools.batch_decode_embedding(Queen_encoder_outputs, model,
 print(perturb_decoded_seq)
 """
 
-self = model.model.encoder
-
-input_text = "He is a good man. You have no sympathy. You are my friend."
-inputs = tokenizer(input_text, return_tensors="pt").to(device)
-encoder_outputs, embedding = get_embedding(inputs, model)
-
-attention_mask = inputs['attention_mask']
-attention_mask = attention_mask.to(dtype=torch.float)
-output_attentions = self.config.output_attentions
-
-input_ids = inputs['input_ids']
-input= input_ids
-#input_ids = input_ids.view(-1, input_ids[-1])
-
-# max_length = 1024
-positional_embedding = self.embed_positions(input).to(device)
-print("positional embedding : \n" + str(positional_embedding))
-
-self.embed_tokens = nn.Embedding(50265, 1024, self.padding_idx).to(device)
-inputs_embeddings = self.embed_tokens(input_ids).to(device)
-print("inputs embeddings : \n" + str(inputs_embeddings))
-
-hidden_states = inputs_embeddings + positional_embedding
-print("hidden states : \n" + str(hidden_states))
-
-normalized_hidden_states = self.layernorm_embedding(hidden_states)
-print("normalized hidden states : \n" + str(normalized_hidden_states))
-
-encoder_states =  ()
-for encoder_layer in self.layers:
-    final_hidden_states = encoder_layer(normalized_hidden_states, attention_mask, output_attentions=output_attentions, layer_head_mask=None)
-    encoder_states =  encoder_states + (hidden_states,) 
-final_hidden_states = final_hidden_states[0]
-print("final hidden states : \n" + str(final_hidden_states))
-
-print("Original embedding : \n" + str(encoder_outputs.last_hidden_state))
-
-
-print("Original : \n" + str(batch_decode_embedding(encoder_outputs, model, tokenizer)))
-print(decode_embedding(encoder_outputs, model, tokenizer))
-encoder_states =  encoder_states + (hidden_states,) 
-encoder_outputs.last_hidden_state = final_hidden_states
-encoder_outputs.hidden_states = encoder_states
-print("Rebuild : \n" + str(batch_decode_embedding(encoder_outputs, model, tokenizer)))
-print(decode_embedding(encoder_outputs, model, tokenizer))
-
-
-
-"""
-print("token : " + str(inputs))
-print("input : " + input_text)
-print("output : " + str(batch_decode_embedding(encoder_outputs, model, tokenizer)))
-print("text : " + str(decode_embedding(encoder_outputs, model, tokenizer)))
-"""
 
 """
 list_of_lists = number_of_dimension_change(model, tokenizer, device, 0.05,"Bart/inputs/sentences_pair.json")
