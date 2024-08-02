@@ -16,7 +16,6 @@ def load_tokenizer_and_model(m="facebook/bart-large"):
 
     return tokenizer,model
 
-
 def get_embedding(inputs, model):
     """
     Extracts embeddings from the model's encoder for given inputs.
