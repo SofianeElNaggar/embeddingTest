@@ -8,7 +8,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 tokenizer, model = load_tokenizer_and_model("facebook/bart-large")
 model.to(device)
 
-text = "He is a good man. You have no sympathy. You are my friend."
+text = "hello"
 
 inputs = tokenizer(text, return_tensors='pt').to(device)
 
@@ -16,6 +16,11 @@ inputs = tokenizer(text, return_tensors='pt').to(device)
 input_ids = inputs['input_ids']
 input_embeddings = model.get_input_embeddings()
 inputs_embeds = input_embeddings(input_ids)
+
+
+
+sauvegarder_en_json(find_neighbor_around(model, tokenizer, device, input_embeddings, inputs_embeds, input_ids, min_lap=5),"./Bart/results/new test/neighbor/neighbor_hello.json")
+
 
 print("Embedding input before : \n" + str(inputs_embeds))
 
