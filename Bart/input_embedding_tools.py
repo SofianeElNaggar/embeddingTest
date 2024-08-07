@@ -3,12 +3,13 @@ import torch
 import tools as tools
 from collections import Counter
 import numpy as np
+from scipy.spatial.distance import euclidean
+import pickle
 
 def decode(model, tokenizer, input_ids, inputs_embeds):
     outputs = model.generate(input_ids, max_new_tokens=len(inputs_embeds[0]))
     text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    batch_text = tokenizer.batch_decode(outputs[0])
-    return text, batch_text
+    return text
 
 def set_new_embedding(model, device, input_embeddings, input_ids, modified_embeds):
     vocab_size, embedding_dim = input_embeddings.weight.shape
@@ -17,51 +18,63 @@ def set_new_embedding(model, device, input_embeddings, input_ids, modified_embed
     new_embeddings.weight.data[input_ids] = modified_embeds.squeeze(0).to(device)
 
     model.set_input_embeddings(new_embeddings)
-    
-def rotate_around_point(vector, distance):
-    return tools.rotate_around_point_lin(vector, distance)
 
-def find_neighbor_around(model, tokenizer, device, input_embeddings, inputs_embeds, input_ids, step=0.5, start_distance=0, min_lap=0, max_lap=1):
-    n = 0
-    
-    embedding = inputs_embeds.cpu().detach().numpy()
-    embedding_sep_token_1 = embedding[0][0]
-    embedding_sep_token_2 = embedding[0][-1]
-    embedding_no_sep_token = embedding[:,1:-1,:][0]
-    
-    if len(embedding_no_sep_token) != 1:
-        return "this is not a word or this is not in your Bart vocabulary"
-    
-    if start_distance == 0:
-        start_distance = step
-    
-    if min_lap > max_lap:
-        max_lap = min_lap
-        
-    words = {}
-    distance = start_distance
-    while n <= min_lap or max_lap > n:
-        
-        list_embeddings = []
-        
-        embeddings = rotate_around_point(embedding_no_sep_token[0], distance)
-        list_embeddings.append(embeddings)
-        
-        results = []
-        
-        for modified_embedding in list_embeddings[0]:
-            modif = [[embedding_sep_token_1]]
-            modif[0].append(modified_embedding)
-            modif[0].append(embedding_sep_token_2)
-            modif = np.array(modif)
-            modified_embed = torch.FloatTensor(modif).to(device)
-            #print(modified_embed.shape)
-            set_new_embedding(model, device, input_embeddings, input_ids, modified_embed)
-            word, batch = decode(model, tokenizer, input_ids, inputs_embeds)
-            results.append(word)
-            
-        words["Distance : " + str(distance)] = dict(Counter(results))
-        distance += step
-        n += 1
+def process_file(model, tokenizer, device, file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
 
-    return words
+    map = {}
+    i = 0
+    for line in lines:
+        print(str(i) + "/50265")
+        i += 1
+        word = line.split(':')[0].strip()
+        word = word.replace('Ġ', ' ')
+        
+        inputs = tokenizer(word, return_tensors='pt').to(device)
+
+        input_ids = inputs['input_ids']
+        input_embeddings = model.get_input_embeddings()
+        inputs_embeds = input_embeddings(input_ids)
+        embedding = inputs_embeds.cpu().detach().numpy()
+        if len(embedding[0]) > 3:
+            continue
+        map[word] = embedding[0][1]
+        
+    return map
+
+def get_vector(word, file_path):
+    with open(file_path, 'rb') as file:
+        data = pickle.load(file)
+    
+    return data.get(word, None)
+
+def euclidean_distance(vec1, vec2):
+    return euclidean(vec1, vec2)
+
+
+def calculate_distances(target_word, file_path):
+    # Charger le vecteur du mot cible
+    target_vector = get_vector(target_word, file_path)
+    
+    if target_vector is None:
+        raise ValueError(f"Le mot '{target_word}' n'a pas été trouvé dans le fichier.")
+    
+    # Charger tous les vecteurs depuis le fichier
+    with open(file_path, 'rb') as file:
+        data = pickle.load(file)
+    
+    distances = {}
+    for word, vector in data.items():
+        if word != target_word:
+            distance = euclidean_distance(target_vector, vector)
+            distances[word] = distance
+    
+    return distances
+
+def get_closest_words(distances, n):
+    # Trier le dictionnaire par distance croissante et obtenir les n premiers éléments
+    closest_words = sorted(distances.items(), key=lambda item: item[1])[:n]
+    
+    # Extraire seulement les mots des n premiers éléments
+    return [word for word, distance in closest_words]
