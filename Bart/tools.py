@@ -742,7 +742,7 @@ def compute_translation_vectors(tokenizer, model, device, json_file):
     """
     Computes translation vectors between the embeddings of two words.
 
-    Arguments:
+    Parameters:
     json_file -- path to a JSON file containing a list of words pairs
                  JSON file format:
                  [
@@ -787,7 +787,7 @@ def compute_average_distances(vectors):
     """
     Computes the average Euclidean and cosine distances between each pair of vectors.
 
-    Arguments:
+    Parameters:
     vectors -- a list of vectors, where each vector is represented as a list of floats.
 
     Returns:
