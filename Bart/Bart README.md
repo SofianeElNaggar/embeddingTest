@@ -33,7 +33,7 @@ Directory Structure
   <img src="../Images/Encoder_plan.png" alt="Encoder_plan" style="width: 50%;"/>
   <br>
   <span style="display: block; text-align: center;">
-    Plan of Bart encoder/decoder. Image by <a href="[https://medium.com/@hunter-j-phillips/overview-the-implemented-transformer-eafd87fe9589]" target="_blank">Hunter Phillips</a>.
+    Plan of Bart encoder/decoder. Image by <a href="https://medium.com/@hunter-j-phillips/overview-the-implemented-transformer-eafd87fe9589" target="_blank">Hunter Phillips</a>.
   </span>
 
 </p>
