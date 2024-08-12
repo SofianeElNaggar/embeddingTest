@@ -31,7 +31,11 @@ Directory Structure
 
 <p align="center">
   <img src="../Images/Encoder_plan.png" alt="Encoder_plan" style="width: 50%;"/>
-  <figcaption style="text-align: center;">Example Image Caption</figcaption>
+  <br>
+  <span style="display: block; text-align: center;">
+    Plan of Bart encoder/decoder. Image by <a href="[https://www.example.com](https://medium.com/@hunter-j-phillips/overview-the-implemented-transformer-eafd87fe9589)" target="_blank">Hunter Phillips</a>.
+  </span>
+
 </p>
 
 
