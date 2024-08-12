@@ -30,5 +30,8 @@ Directory Structure
 + **Objective:** Although most results are not particularly relevant, they are included here to document the experiments conducted and to provide a historical record of the tests performed.
 
 <p align="center">
-  <img src="../Images/Encoder_plan.png" alt="Example Image" style="width: 50%;"/>
+  <img src="../Images/Encoder_plan.png" alt="Encoder_plan" style="width: 50%;"/>
+  <figcaption style="text-align: center;">Example Image Caption</figcaption>
 </p>
+
+
