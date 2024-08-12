@@ -4,7 +4,7 @@ Welcome to this repository! This project is primarily focused on exploring and t
 Repository Structure
 
 This repository is organized into two main folders:
-1. Bart
+## 1. Bart
 
 This folder is the core of the project and contains:
 
@@ -13,7 +13,7 @@ This folder is the core of the project and contains:
     Results: Outputs from the different experiments, including visualizations, metrics, and reports, most of them are not very relevant.
 
 The purpose of this folder is to deeply explore how BART's embeddings works in various contexts and scenarios.
-2. Side Iteration
+## 2. Side Iteration
 
 This folder contains our initial, more exploratory tests conducted on BERT and GPT-2.
 
