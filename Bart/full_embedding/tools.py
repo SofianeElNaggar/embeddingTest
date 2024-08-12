@@ -1,18 +1,18 @@
 import torch
-from transformers import BartForConditionalGeneration, BartTokenizer
 import random
 import itertools
 import math
 from collections import Counter
 import json
 import numpy as np
+from transformers import BartForConditionalGeneration, BartTokenizer
 from numpy import linalg as LA
 from scipy.spatial.distance import euclidean
 
 def load_tokenizer_and_model(m="facebook/bart-large"):
 
     tokenizer = BartTokenizer.from_pretrained(m)
-    model = BartForConditionalGeneration.from_pretrained(m)
+    model = BartForConditionalGeneration.from_pretrained(m, output_hidden_states=True)
 
     return tokenizer,model
 
@@ -90,38 +90,6 @@ def decode_embedding(encoder_outputs, model, tokenizer):
     
     return result
 
-def explore_embedding(tokenizer, model, device):
-    print("Begin embedding")
-    f = open("./inputs/bart_vocab_with_ids.txt","r")
-    all_emb = []
-    cpt = 0
-    for line in f:
-        inp = line.split(" : ")[0]
-        ids = tokenizer(inp, return_tensors="pt").to(device)
-        _, rep = get_embedding(ids, model)
-        print(len(rep))
-        if(len(rep)==2 or len(rep) == 5):
-            print(inp)
-            print(ids)
-            print(rep)
-        all_emb.append(rep)
-        cpt += 1
-        if (cpt % 50 == 0):
-            break
-    f.close()
-    #print(all_emb)
-    #print(all_emb[0].type)
-    with open("./inputs/bart_full_embed_from_vocab.txt","w") as f:
-        np.savetxt(f,all_emb)
-    # f = open("./inputs/bart_full_embed_from_vocab.txt","w")
-    #f.writelines(all_emb)
-    #f.close()
-    print("End embedding")
-        
-
-
-    
-
 def random_word():
     """
     Selects a random word from a file of common English words.
@@ -129,7 +97,7 @@ def random_word():
     Returns:
     str: A randomly selected word.
     """
-    fichier = './english-common-words.txt'
+    fichier = './Bart/inputs/english-common-words.txt'
     with open(fichier, 'r') as f:
         lignes = f.readlines()
         ligne = random.choice(lignes)
@@ -367,10 +335,6 @@ def cosinus_distance(v1, v2):
     cos_sim = dot_product / (norm_v1 * norm_v2)
     cos_dist = 1 - cos_sim
     return cos_dist
-
-def cosinus_distance_sklearn(v1, v2):
-    from sklearn.metrics.pairwise import cosine_similarity
-    return cosine_similarity(v1,v2)
 
 def distance_cosinus_between_vectors(liste_vecteurs1, liste_vecteurs2):
     """
@@ -778,7 +742,7 @@ def compute_translation_vectors(tokenizer, model, device, json_file):
     """
     Computes translation vectors between the embeddings of two words.
 
-    Arguments:
+    Parameters:
     json_file -- path to a JSON file containing a list of words pairs
                  JSON file format:
                  [
@@ -823,7 +787,7 @@ def compute_average_distances(vectors):
     """
     Computes the average Euclidean and cosine distances between each pair of vectors.
 
-    Arguments:
+    Parameters:
     vectors -- a list of vectors, where each vector is represented as a list of floats.
 
     Returns:
@@ -865,7 +829,7 @@ def change_all_dimension(model, tokenizer, encoder_outputs):
     for i in range(len(encoder_outputs.last_hidden_state[0][0])):
         result = change_dimension(model, tokenizer, encoder_outputs, i)
         results["dimension : " + str(i)] = remove_consecutive_duplicates(result)
-        print(str(i) + "/1024")
+        print(str(i+1) + "/1024")
     return results
 
 def remove_consecutive_duplicates(lst):
@@ -877,3 +841,41 @@ def remove_consecutive_duplicates(lst):
         if lst[i] != lst[i - 1]:
             result.append(lst[i])
     return result
+
+def convert_numpy_types(donnees):
+    """
+    Convertit les types de données NumPy en types natifs Python.
+    
+    :param donnees: Les données à convertir.
+    :return: Les données avec les types convertis.
+    """
+    if isinstance(donnees, np.ndarray):
+        return donnees.tolist()
+    elif isinstance(donnees, np.generic):
+        return donnees.item()
+    elif isinstance(donnees, dict):
+        return {k: convert_numpy_types(v) for k, v in donnees.items()}
+    elif isinstance(donnees, list):
+        return [convert_numpy_types(v) for v in donnees]
+    elif isinstance(donnees, tuple):
+        return tuple(convert_numpy_types(v) for v in donnees)
+    elif isinstance(donnees, set):
+        return {convert_numpy_types(v) for v in donnees}
+    return donnees
+
+def sauvegarder_en_json(donnees, nom_fichier):
+    """
+    Sauvegarde les données fournies dans un fichier JSON après conversion des types NumPy.
+
+    :param donnees: Les données à sauvegarder (peut être une liste, un dictionnaire, etc.).
+    :param nom_fichier: Le nom du fichier dans lequel sauvegarder les données.
+    """
+    donnees_converties = convert_numpy_types(donnees)
+    
+    try:
+        with open(nom_fichier, 'w', encoding='utf-8') as fichier:
+            json.dump(donnees_converties, fichier, ensure_ascii=False, indent=4)
+        print(f"Les données ont été sauvegardées dans le fichier {nom_fichier}.")
+    except Exception as e:
+        print(f"Une erreur est survenue lors de la sauvegarde : {e}")
+

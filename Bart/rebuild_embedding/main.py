@@ -1,12 +1,10 @@
-from transformers import BartTokenizer, BartForConditionalGeneration
 import torch
-from tools import *
 from  input_embedding_tools import *
-import time
+from full_embedding import tools as tools
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-tokenizer, model = load_tokenizer_and_model("facebook/bart-large")
+tokenizer, model = tools.load_tokenizer_and_model("facebook/bart-large")
 model.to(device)
 
 print(get_closest_words(calculate_distances(" queen", "./Bart/inputs/bart_all_word_embedding.pkl"),10))

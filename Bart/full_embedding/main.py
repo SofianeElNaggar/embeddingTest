@@ -1,29 +1,50 @@
-from transformers import BartForConditionalGeneration, BartTokenizer, AutoTokenizer, GPT2Tokenizer
 from tools import *
-import numpy as np
-import json
+import torch
 import matplotlib.pyplot as plt
 from collections import Counter
 
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-model = "facebook/bart-large"
+model_name = "facebook/bart-large"
 
-tokenizer = BartTokenizer.from_pretrained(model)
-model = BartForConditionalGeneration.from_pretrained(model)
+tokenizer, model = load_tokenizer_and_model(model_name)
 
 model.to(device)
 
+#print(model.config)
 
+"""
+Queen_text = "He is a poor boy. You have no sympathy. You are my friend."
 
+tokenizer, model = tools.load_tokenizer_and_model()
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model.to(device)
 
-input_text = "ļ"
-inputs = tokenizer(input_text, return_tensors="pt").to(device)
-encoder_outputs, embedding = get_embedding(inputs, model)
-print("token : " + str(inputs))
-print("input : " + input_text)
-print("output : " + str(batch_decode_embedding(encoder_outputs, model, tokenizer)))
+Queen_inputs = tokenizer(Queen_text, return_tensors="pt").to(device)
+Queen_encoder_outputs, Queen_embedding = tools.get_embedding(Queen_inputs, model)
+
+print("Batch decoding function")
+decoded_seq = tools.batch_decode_embedding(Queen_encoder_outputs, model, tokenizer)
+print(decoded_seq)
+# print(decoded_seq["last_hidden_state"].size())
+
+print("TRY REPLACE an I with You!!!!")
+perturb_text = " We have no sympathy."
+perturb_inputs = tokenizer(perturb_text, return_tensors="pt").to(device)
+perturb_encoder_outputs, perturb_embedding = tools.get_embedding(perturb_inputs, model)
+
+print("Try perturb")
+init= Queen_encoder_outputs.last_hidden_state.clone().detach()
+
+#print(init[0,12:-1,:])
+#print(perturb_encoder_outputs.last_hidden_state)
+Queen_encoder_outputs.last_hidden_state[0,7,:] = perturb_encoder_outputs.last_hidden_state[0,1,:]
+#print(Queen_encoder_outputs.last_hidden_state[0,12:-1,:])
+
+print("Try decoding")
+perturb_decoded_seq = tools.batch_decode_embedding(Queen_encoder_outputs, model, tokenizer)
+print(perturb_decoded_seq)
+"""
 
 
 """
@@ -118,34 +139,3 @@ sauvegarder_en_json(change_all_dimension(model, tokenizer, encoder_outputs), "Ba
 #print(decode_embedding(encoder_outputs, model, tokenizer))
 
 #sauvegarder_en_json(distance_between_random_words(device, model, tokenizer, 1000), "./Bart/stats_distance_random.json")
-
-def king_queen():
-    """
-    c'est moche mais c'est vite fait
-    les résultats sont nul
-    """
-    king_text = "king"
-    king_inputs = tokenizer(king_text, return_tensors="pt").to(device)
-    king_encoder_outputs, king_embedding = get_embedding(king_inputs, model)
-    man_text = "man"
-    man_inputs = tokenizer(man_text, return_tensors="pt").to(device)
-    man_encoder_outputs, man_embedding = get_embedding(man_inputs, model)
-
-    vec_man_king = []
-    for i in range(len(king_embedding[0])):
-        vec_man_king.append(man_embedding[0][i]-king_embedding[0][i])
-        
-    queen_text = "queen"
-    queen_inputs = tokenizer(queen_text, return_tensors="pt").to(device)
-    queen_encoder_outputs, queen_embedding = get_embedding(queen_inputs, model)
-    woman_text = "woman"
-    woman_inputs = tokenizer(woman_text, return_tensors="pt").to(device)
-    woman_encoder_outputs, woman_embedding = get_embedding(woman_inputs, model)
-
-    vec_woman_queen = []
-    for i in range(len(queen_embedding[0])):
-        vec_woman_queen.append(woman_embedding[0][i]-queen_embedding[0][i])
-        
-    print(cosinus_distance(vec_man_king, vec_woman_queen))
-
-#king_queen()
