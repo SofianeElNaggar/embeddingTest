@@ -29,4 +29,6 @@ Directory Structure
 + **Description:** This folder stores the results of certain tests performed on BART embeddings.
 + **Objective:** Although most results are not particularly relevant, they are included here to document the experiments conducted and to provide a historical record of the tests performed.
 
-![Example Image](../Images/Encoder_plan.png)
+<p align="center">
+  <img src="../Images/Encoder_plan.png" alt="Example Image" style="width: 50%;"/>
+</p>
