@@ -1,4 +1,4 @@
-#Repository Name
+# Repository Name
 
 Welcome to this repository! This project is primarily focused on exploring and testing the embeddings of the BART model through various scripts, data, and experiments. Additionally, you will find a secondary folder containing initial tests conducted on BERT and GPT-2.
 Repository Structure
