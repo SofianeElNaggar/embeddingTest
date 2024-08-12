@@ -879,3 +879,56 @@ def sauvegarder_en_json(donnees, nom_fichier):
     except Exception as e:
         print(f"Une erreur est survenue lors de la sauvegarde : {e}")
 
+def compare_embeddings(model, tokenizer, device, word1, word2):
+    """
+    Compares the embeddings of two words using a specified model and tokenizer, and prints the differences.
+
+    Parameters:
+    - model: The language model used to generate embeddings.
+    - tokenizer: The tokenizer used to convert words into token ids.
+    - device: The device (e.g., 'cpu' or 'cuda') to which tensors are moved.
+    - word1: The first word to be compared.
+    - word2: The second word to be compared.
+
+    Returns:
+    - None: This function prints the embeddings of the two words, their cosine similarity, and the differences between their embeddings.
+    """
+    
+    # Tokenize and get embeddings for the first word
+    word1_inputs = tokenizer(word1, return_tensors="pt").to(device)
+    word1_encoder_outputs, word1_embedding = get_embedding(word1_inputs, model)
+
+    # Tokenize and get embeddings for the second word
+    word2_inputs = tokenizer(word2, return_tensors="pt").to(device)
+    word2_encoder_outputs, word2_embedding = get_embedding(word2_inputs, model)
+
+    # Print the embeddings and results
+    print("RESULTS for " + word1 + " and " + word2 + " :\n")
+
+    print("Embedding for " + word1 + " :")
+    print(word1_embedding)
+    print("\n")
+
+    print("Embedding for " + word2 + " :")
+    print(word2_embedding)
+    print("\n")
+
+    # Extract the embeddings of the first vectors for both words
+    vec_word1_embedding = word1_embedding[0]
+    vec_word2_embedding = word2_embedding[0]
+
+    # Print cosine distance using another cosine distance function
+    print(cosinus_distance(vec_word1_embedding, vec_word2_embedding))
+    print("\n")
+
+    # Print the differences between the embeddings
+    print("Differences in embeddings of " + word1 + " and " + word2 + " :")
+    cpt = 0
+    for i in range(len(word1_embedding[0])):
+        if word1_embedding[0][i] != word2_embedding[0][i]:
+            print("Dimension " + str(i))
+            print(abs(word1_embedding[0][i]) - abs(word2_embedding[0][i]))
+            cpt += 1
+
+    print(cpt)
+    print("END")

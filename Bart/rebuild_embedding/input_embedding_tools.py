@@ -77,7 +77,6 @@ def process_file(model, tokenizer, device, file_path):
     map = {}
     i = 0
     for line in lines:
-        print(str(i) + "/50265")
         i += 1
         word = line.split(':')[0].strip()
         word = word.replace('Ġ', ' ')  # Special token handling
