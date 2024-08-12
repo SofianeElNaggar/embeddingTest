@@ -5,7 +5,7 @@ Directory Structure
 ### 1. bart_source_code
 
 + **Description:** This folder contains the source code for the BART model (encoder and decoder). This code is not intended for direct use but rather serves as a reference to help us better understand how BART operates and how its embeddings are constructed.
-+ **Purpose:** We primarily use this to deepen our understanding of BART’s internal mechanisms, which aids us in interpreting our experiments more effectively.
++ **Objective:** We primarily use this to deepen our understanding of BART’s internal mechanisms, which aids us in interpreting our experiments more effectively.
 
 ### 2. full_embedding
 
