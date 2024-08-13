@@ -15,7 +15,7 @@ This directory contains the key components of our exploration into the embedding
 
 ### 3. rebuild_embedding
 
-+ **Description:** This folder revisits some of the tests from *full_embedding*, but with our improved understanding of embeddings.
++ **Description:** This folder revisits some of the tests from full_embedding`, but with our improved understanding of embeddings.
 + **Objective:** We decided to conduct these tests on the initial step of embedding, before the application of positional encoding. The goal is to produce potentially more accurate and insightful results. Positional encoding and normalization are added later to assess their impact.
 + **Advantages:** This approach allows us to better isolate and understand the different stages of the embedding process in BART.
 
@@ -38,5 +38,5 @@ This directory contains the key components of our exploration into the embedding
 
 </p>
 
-+ **Step 1:** Refers to the raw embeddings before any additional processing. Evaluated in the *rebuild_embedding* tests.
-+ **Step 2:** Refers to the embeddings after positional encoding and normalization. Evaluated in the *full_embedding* tests.
++ **Step 1:** Refers to the raw embeddings before any additional processing. Evaluated in the `rebuild_embedding` tests.
++ **Step 2:** Refers to the embeddings after positional encoding and normalization. Evaluated in the full_embedding` tests.
