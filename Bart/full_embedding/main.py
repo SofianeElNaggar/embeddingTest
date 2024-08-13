@@ -1,6 +1,5 @@
 from tools import *
 import torch
-from collections import Counter
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
