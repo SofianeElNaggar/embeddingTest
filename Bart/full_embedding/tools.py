@@ -8,6 +8,7 @@ import numpy as np
 from transformers import BartForConditionalGeneration, BartTokenizer
 from numpy import linalg as LA
 from scipy.spatial.distance import euclidean
+import matplotlib.pyplot as plt
 
 def load_tokenizer_and_model(m="facebook/bart-large"):
 
@@ -817,29 +818,89 @@ def compute_average_distances(vectors):
     }
     
 def change_dimension(model, tokenizer, encoder_outputs, d):
+    """
+    Modifies a specific dimension `d` of the embeddings in `encoder_outputs` and decodes the resulting embeddings back to text.
+
+    Parameters:
+    - model: The language model used for generating and decoding embeddings.
+    - tokenizer: The tokenizer used to convert between text and tokens.
+    - encoder_outputs: The outputs from the model's encoder, containing the last hidden state embeddings.
+    - d: The specific dimension in the embeddings to modify.
+
+    Returns:
+    - results: A list of decoded text sequences corresponding to each modification of the `d`-th dimension.
+    """
+    
     results = []
+    
+    # Iterate over a range of values to modify the d-th dimension of the first token's embedding
     for i in np.arange(-2.5, 2.5, 0.1):
+        
+        # Modify the d-th dimension of the first token's embedding
         encoder_outputs.last_hidden_state[0][0][d] = i
+        
+        # Decode the modified embeddings back to text
         result = decode_embedding(encoder_outputs, model, tokenizer)
+        
+        # Store the decoded result in the list
         results.append(result)
+    
     return results
 
 def change_all_dimension(model, tokenizer, encoder_outputs):
+    """
+    Modifies each dimension of the embeddings in the model's encoder outputs and records the results.
+
+    Parameters:
+    - model: The language model used for generating and modifying embeddings.
+    - tokenizer: The tokenizer used to process and convert text into token ids.
+    - encoder_outputs: The outputs from the model's encoder, which include the last hidden state embeddings.
+
+    Returns:
+    - results: A dictionary where each key corresponds to a dimension in the embeddings, and the value is a list 
+               of the results after removing consecutive duplicates.
+    """
+    
     results = {}
+
+    # Iterate over each dimension of the first token's embedding (assuming a 3D tensor [batch, sequence, embedding_dim])
     for i in range(len(encoder_outputs.last_hidden_state[0][0])):
+        
+        # Modify the embeddings by altering the i-th dimension
         result = change_dimension(model, tokenizer, encoder_outputs, i)
+        
+        # Remove consecutive duplicates from the result and store it in the dictionary
         results["dimension : " + str(i)] = remove_consecutive_duplicates(result)
-        print(str(i+1) + "/1024")
+        
+        # Print progress (assuming a total of 1024 dimensions)
+        print(str(i + 1) + "/1024")
+    
     return results
 
 def remove_consecutive_duplicates(lst):
+    """
+    Removes consecutive duplicate elements from a list.
+
+    Parameters:
+    - lst: A list of elements from which consecutive duplicates should be removed.
+
+    Returns:
+    - result: A list with consecutive duplicates removed. If the input list is empty, an empty list is returned.
+    """
+    
+    # Check if the list is empty; return an empty list if it is.
     if not lst:
         return []
 
+    # Initialize the result list with the first element of the input list.
     result = [lst[0]]
+    
+    # Iterate through the list starting from the second element.
     for i in range(1, len(lst)):
+        # If the current element is not the same as the previous one, add it to the result list.
         if lst[i] != lst[i - 1]:
             result.append(lst[i])
+    
     return result
 
 def convert_numpy_types(donnees):
@@ -932,3 +993,81 @@ def compare_embeddings(model, tokenizer, device, word1, word2):
 
     print(cpt)
     print("END")
+    
+def switch_sentences(model, tokenizer, device):
+    """
+    Demonstrates how to manipulate sentence embeddings by replacing specific words in a model's output.
+
+    Parameters:
+    - model: The language model used for generating and manipulating embeddings.
+    - tokenizer: The tokenizer used to convert text into token ids.
+    - device: The device (e.g., 'cpu' or 'cuda') to which tensors are moved.
+
+    Returns:
+    - None: The function prints the original and modified sequences after embedding manipulation.
+    """
+    
+    # Original text to be processed
+    Queen_text = "He is a poor boy. You have no sympathy. You are my friend."
+
+    # Tokenize and get embeddings for the original text
+    Queen_inputs = tokenizer(Queen_text, return_tensors="pt").to(device)
+    Queen_encoder_outputs, Queen_embedding = get_embedding(Queen_inputs, model)
+
+    # Decode the embeddings to obtain the original text sequence
+    print("Batch decoding function")
+    decoded_seq = batch_decode_embedding(Queen_encoder_outputs, model, tokenizer)
+    print(decoded_seq)
+
+    # Introduce a perturbation by modifying part of the sentence
+    print("TRY REPLACE an I with You!!!!")
+    perturb_text = " We have no sympathy."
+    perturb_inputs = tokenizer(perturb_text, return_tensors="pt").to(device)
+    perturb_encoder_outputs, perturb_embedding = get_embedding(perturb_inputs, model)
+
+    # Modify the original embeddings by replacing a specific token's embedding
+    print("Try perturb")
+    init = Queen_encoder_outputs.last_hidden_state.clone().detach()
+
+    # Replace the embedding of the 8th token (index 7) in the original sequence with the 2nd token (index 1) of the perturbation
+    Queen_encoder_outputs.last_hidden_state[0, 7, :] = perturb_encoder_outputs.last_hidden_state[0, 1, :]
+
+    # Decode the modified embeddings to see the effect of the perturbation
+    print("Try decoding")
+    perturb_decoded_seq = batch_decode_embedding(Queen_encoder_outputs, model, tokenizer)
+    print(perturb_decoded_seq)
+
+def graph_change_dim(model, tokenizer, device):
+    """
+    Generates a histogram to visualize the changes in embedding dimensions for a given model.
+
+    Parameters:
+    - model: The language model used to analyze changes in embedding dimensions.
+    - tokenizer: The tokenizer used to process the text data.
+    - device: The device (e.g., 'cpu' or 'cuda') to which tensors are moved.
+
+    Returns:
+    - None: This function displays a histogram that visualizes the frequency of changes in the embedding dimensions.
+    """
+    
+    # Call a function to calculate the number of dimension changes
+    list_of_lists = number_of_dimension_change(model, tokenizer, device, 0.05, "Bart/inputs/sentences_pair.json")
+
+    # Flatten the list of lists into a single list
+    flattened_list = [item for sublist in list_of_lists for item in sublist]
+
+    # Count the occurrences of each value in the flattened list
+    counter = Counter(flattened_list)
+
+    # Prepare data for the histogram
+    values = list(counter.keys())
+    frequencies = list(counter.values())
+
+    # Create and display the histogram
+    plt.figure(figsize=(10, 6))
+    plt.bar(values, frequencies, width=1.0, edgecolor='black')
+    plt.xlabel('Values')
+    plt.ylabel('Frequency of Occurrence')
+    plt.title('Histogram of Value Occurrences')
+    plt.grid(True)
+    plt.show()
