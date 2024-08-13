@@ -38,5 +38,5 @@ This directory contains the key components of our exploration into the embedding
 
 </p>
 
-+ **Step 1:** Refers to the raw embeddings before any additional processing. Evaluated in the '**rebuild_embedding**' tests.
-+ **Step 2:** Refers to the embeddings after positional encoding and normalization. Evaluated in the '**full_embedding**' tests.
++ **Step 1:** Refers to the raw embeddings before any additional processing. Evaluated in the *rebuild_embedding* tests.
++ **Step 2:** Refers to the embeddings after positional encoding and normalization. Evaluated in the *full_embedding* tests.
