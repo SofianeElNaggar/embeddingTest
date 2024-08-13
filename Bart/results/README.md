@@ -1,6 +1,6 @@
 # Results Directory
 
-This directory contains the results of various experiments conducted to analyze the behavior and characteristics of BART embeddings. All these tests were performed at step 2 of the embedding process, meaning they include positional encoding and normalization. As a result, the findings are generally not highly relevant for understanding the raw embedding structure but provide insight into the post-processed embeddings.
+This directory contains the results of various experiments conducted to analyze the behavior and characteristics of BART embeddings. All these tests were performed at step 2 (*cf Bart README*)of the embedding process, meaning they include positional encoding and normalization. As a result, the findings are generally not highly relevant for understanding the raw embedding structure but provide insight into the post-processed embeddings.
 
 ### 1. change_dim
 
