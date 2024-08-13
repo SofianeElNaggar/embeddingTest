@@ -1,0 +1,1 @@
+ This folder contains the source code for the BART model (encoder and decoder). This code is not intended for direct use but rather serves as a reference to help us better understand how BART operates and how its embeddings are constructed.
