@@ -1,7 +1,7 @@
 # Bart
 
 This directory contains the key components of our exploration into the embeddings of the BART model. Here, you’ll find the source code as well as various tests and results related to our study of embeddings. Below is a detailed description of the subdirectories within this folder:
-Directory Structure
+
 ### 1. bart_source_code
 
 + **Description:** This folder contains the source code for the BART model (encoder and decoder). This code is not intended for direct use but rather serves as a reference to help us better understand how BART operates and how its embeddings are constructed.
