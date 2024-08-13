@@ -1,11 +1,11 @@
 # Inputs
 
 The inputs folder contains essential files used for testing and analyzing the embeddings of the BART model. Each file in this directory serves a specific purpose in evaluating the performance and robustness of BART embeddings at different stages.
-Directory Contents
+
 ### 1. bart_all_word_embedding.pkl
 
 + **Description:** This file contains the complete set of embeddings at **step 1** (*cf Bart README*) of the BART model for each word. The embeddings are stored as a map (Python dictionary), where each word is associated with its corresponding embedding.
-+ **Format:** The file is in .pkl format, which means it is serialized using Python's pickle library. This format allows for easy storage and loading of complex objects, but be mindful of Python versions and dependencies to avoid compatibility issues when loading the file.
++ **Format:** The file is in .pkl format, which means it is serialized using Python's pickle library. This format allows for easy storage and loading of complex objects.
 
 ### 2. bart_vocab_with_ids.txt
 
