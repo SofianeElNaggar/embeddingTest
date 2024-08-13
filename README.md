@@ -9,7 +9,7 @@ This folder is the core of the project and contains:
 
 + **Data:** Datasets used to evaluate and test the performance of BART embeddings.
 + **Code:** Scripts that implement various experiments and analyses on BART embeddings.
-+ **Results:** Outputs from the different experiments, including visualizations, metrics, and reports, most of them are not very relevant.
++ **Results:** Outputs from the different experiments, most of them are not very relevant.
 
 The purpose of this folder is to deeply explore how BART's embeddings works in various contexts and scenarios.
 ### 2. Side Iteration
