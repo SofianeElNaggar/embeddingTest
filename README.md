@@ -2,8 +2,6 @@
 
 Welcome to this repository. This project is primarily focused on exploring and testing the embeddings of the **BART** model through various scripts, data, and experiments. Additionally, you will find a secondary folder containing initial tests conducted on **BERT** and **GPT-2**.
 
-## Repository Structure
-
 This repository is organized into two main folders:
 
 ### 1. Bart
@@ -25,6 +23,8 @@ This folder contains our initial, more exploratory tests conducted on **BERT** a
 
 While this folder is not essential for users primarily interested in BART, it may provide insights into the approaches tested and the directions considered.
 
-## Development Environment
+## Environment
 
-The development and testing in this project are conducted within a Python virtual environment. This approach ensures that the dependencies and packages required for the project are isolated from the system's global Python environment, which helps avoid potential conflicts between different projects and ensures that the environment is consistent across different development setups.
+This project is developed and tested in a virtual environment to ensure consistency and isolation of dependencies. Specifically, the following setup is used:
+
++ **Transformers Library Version:** 4.42.3
