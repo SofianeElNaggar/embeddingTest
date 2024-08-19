@@ -1,6 +1,11 @@
 import torch
+import sys
 from  input_embedding_tools import *
-from full_embedding import tools as tools
+
+external_folder = '../Bart/full_embedding'
+sys.path.append(external_folder)
+
+import tools
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
